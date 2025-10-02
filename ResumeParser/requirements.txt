@@ -1,0 +1,8 @@
+flask
+fastapi
+uvicorn
+PyMuPDF
+pdfminer.six
+pytesseract
+Pillow
+python-multipart
