@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 public class LoginResponse {
     private String message;
     private boolean success;
-    private User user; // pura user object, password auto-hide ho jayega
+    private User user;      // pura user object, password hide kar sakte ho frontend me
+    private String token;   // JWT token
 }

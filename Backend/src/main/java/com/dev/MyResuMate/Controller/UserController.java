@@ -1,22 +1,33 @@
 package com.dev.MyResuMate.Controller;
 
-import com.dev.MyResuMate.DTO.LoginRequest;
-import com.dev.MyResuMate.DTO.LoginResponse;
-import com.dev.MyResuMate.DTO.SignupRequest;
-import com.dev.MyResuMate.DTO.SignupResponse;
+import com.dev.MyResuMate.DTO.*;
+import com.dev.MyResuMate.Model.User;
+import com.dev.MyResuMate.Model.VerificationToken;
+import com.dev.MyResuMate.Repository.UserRepository;
+import com.dev.MyResuMate.Repository.VerificationTokenRepository;
 import com.dev.MyResuMate.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000") // React frontend
+//@CrossOrigin(origins = "http://localhost:3000") // React frontend
 public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private VerificationTokenRepository verificationTokenRepository;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
@@ -44,4 +55,32 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
+
+    @Transactional
+    @PostMapping("/verify")
+    public ResponseEntity<String> verifyEmail(@RequestBody VerifyRequest request) {
+        Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(request.getToken());
+
+        if (optionalToken.isEmpty() || optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body("Invalid or expired verification token");
+        }
+
+        VerificationToken verificationToken = optionalToken.get();
+        User user = verificationToken.getUser();
+
+        // Extra check: what if user is already verified?
+        if (user.isVerified()) {
+            verificationTokenRepository.delete(verificationToken); // Clean up the token
+            return ResponseEntity.ok("Email already verified. You can log in.");
+        }
+
+        user.setVerified(true);
+        userRepository.save(user);
+        // Delete the token *after* successful verification
+        verificationTokenRepository.delete(verificationToken);
+
+        return ResponseEntity.ok("Email verified successfully! You may now log in.");
+    }
+
+
 }

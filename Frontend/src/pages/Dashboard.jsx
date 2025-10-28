@@ -5,7 +5,7 @@ import { Link } from "react-router-dom"
 import { FileText, Download, Eye, Star, TrendingUp, Award, Plus, Clock, CheckCircle } from "lucide-react"
 import Sidebar from "../components/Sidebar.jsx"
 import AnimatedCounter from "../components/AnimatedCounter.jsx"
-
+import { useNavigate } from "react-router-dom";
 const Dashboard = () => {
   const [recentResumes, setRecentResumes] = useState([
     {
@@ -35,11 +35,16 @@ const Dashboard = () => {
   ])
 
    const [user, setUser] = useState(null)
-    
+    const navigate = useNavigate();
     useEffect(() => {
       const storedUser = JSON.parse(localStorage.getItem("user"))
-      setUser(storedUser)
-    }, [])
+      if (!storedUser?.token) {
+        navigate("/auth")
+      } else {
+        setUser(storedUser)
+      }
+    }, [navigate])
+
   const stats = [
     { label: "Resumes Created", value: 12, icon: <FileText className="w-6 h-6" />, color: "purple" },
     { label: "Downloads", value: 45, icon: <Download className="w-6 h-6" />, color: "pink" },

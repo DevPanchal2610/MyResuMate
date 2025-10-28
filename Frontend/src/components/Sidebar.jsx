@@ -16,6 +16,11 @@ import {
   MessageCircle,
 } from "lucide-react"
 
+const handleLogout = () => {
+  localStorage.removeItem("user")
+  window.location.href = "/auth"
+}
+
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false)
   const location = useLocation()
@@ -112,10 +117,11 @@ const Sidebar = () => {
           )}
         </div>
         {!collapsed && (
-          <button className="flex items-center w-full p-3 mt-2 space-x-3 text-gray-700 transition-colors rounded-xl hover:bg-gray-100">
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium">Sign Out</span>
-          </button>
+        <button onClick={handleLogout} className="flex items-center w-full p-3 mt-2 space-x-3 text-gray-700 transition-colors rounded-xl hover:bg-gray-100">
+          <LogOut className="w-5 h-5" />
+          <span className="font-medium">Sign Out</span>
+        </button>
+
         )}
       </div>
     </div>

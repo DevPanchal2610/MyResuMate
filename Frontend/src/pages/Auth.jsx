@@ -1,10 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import axios from "axios"
-import { Eye, EyeOff, Mail, Lock, User, Sparkles, CheckCircle, ArrowRight } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User, Sparkles, CheckCircle, ArrowRight, LogOut } from "lucide-react"
+import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("login")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -15,12 +17,27 @@ const Auth = () => {
     confirmPassword: "",
   })
 
+  // ✅ Auto redirect if user is already logged in
+  useEffect(() => {
+  const storedUser = JSON.parse(localStorage.getItem("user"))
+  if (storedUser?.token) {
+    navigate("/dashboard")
+  }
+}, [navigate])
+
+useEffect(() => {
+  setMessage(""); // clear message when user switches tab
+}, [activeTab]);
+
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     })
   }
+
+const [message, setMessage] = useState("");  // <-- new state for inline messages
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,14 +63,25 @@ const Auth = () => {
 
       console.log("✅ Success:", response.data);
 
-      localStorage.setItem("user", JSON.stringify(response.data));
+      if (activeTab === "signup") {
+        setMessage("Signup successful! Please check your email to verify your account.");
+        setFormData({ name: "", email: "", password: "", confirmPassword: "" }); // reset form
+      } else {
+        localStorage.setItem("user", JSON.stringify(response.data));
+        navigate("/dashboard");
+      }
 
-      window.location.href = "/dashboard";
     } catch (error) {
       console.error("❌ Error:", error);
       alert(error.response?.data?.message || "Something went wrong");
     }
   };
+
+  // ✅ Logout function
+  const handleLogout = () => {
+    localStorage.removeItem("user")
+    navigate("/auth");
+  }
 
   const benefits = [
     "AI-powered resume optimization",
@@ -134,6 +162,13 @@ const Auth = () => {
                     ? "Sign in to continue building amazing resumes"
                     : "Create your account and start building"}
                 </p>
+
+                {message && (
+                  <div className="mb-4 p-3 text-sm text-blue-700 bg-blue-100 rounded">
+                    {message}
+                  </div>
+                )}
+
               </div>
 
               {/* Name Field (Signup only) */}
@@ -222,7 +257,7 @@ const Auth = () => {
                 </div>
               )}
 
-              {/* Remember Me / Forgot Password */}
+              {/* Login Options */}
               {activeTab === "login" && (
                 <div className="flex items-center justify-between">
                   <label className="flex items-center">
@@ -261,16 +296,18 @@ const Auth = () => {
                 {activeTab === "login" ? "Sign In" : "Create Account"}
                 <ArrowRight className="w-5 h-5" />
               </button>
-            </form>
 
-            {/* Social Login (Commented out) */}
-            <div className="mt-8">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
-                </div>
-              </div>
-            </div>
+              {/* Logout Button (optional display) */}
+              {JSON.parse(localStorage.getItem("user"))?.token && (
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex items-center justify-center w-full gap-2 py-2 mt-4 text-sm btn-secondary"
+                >
+                  Logout <LogOut className="w-4 h-4" />
+                </button>
+              )}
+            </form>
           </div>
         </div>
       </div>

@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/ats")
-@CrossOrigin(origins = "http://localhost:3000") // React frontend
+//@CrossOrigin(origins = "http://localhost:3000") // React frontend
 public class ATSController {
 
     @Autowired

@@ -25,5 +25,8 @@ public class User {
     private String password;
 
     @Column(nullable = false)
+    private boolean verified = false; // default false
+
+    @Column(nullable = false)
     private boolean premium = false;  // default false
 }
