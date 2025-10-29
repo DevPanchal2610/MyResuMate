@@ -79,7 +79,7 @@ public class UserController {
         // Delete the token *after* successful verification
         verificationTokenRepository.delete(verificationToken);
 
-        return ResponseEntity.ok("Email verified successfully! You may now log in.");
+        return ResponseEntity.ok("Email verified successfully! You may now log in. ");
     }
 
 
