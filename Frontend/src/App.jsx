@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import SmoothScrollProvider from "./components/SmoothScrollProvider.jsx"
 import Navbar from "./components/Navbar.jsx"
 import Footer from "./components/Footer.jsx"
+import ResetPassword from "./components/ResetPassword";
 
 // Pages
 import Home from "./pages/Home.jsx"
@@ -34,6 +35,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} /> 
                <Route
                 path="/dashboard"
                 element={

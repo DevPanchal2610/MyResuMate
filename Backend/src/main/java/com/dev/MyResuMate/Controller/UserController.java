@@ -83,4 +83,29 @@ public class UserController {
     }
 
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody PasswordRequest passwordRequest) {
+        userService.handleForgotPassword(passwordRequest.getEmail());
+
+        // Always return a generic success message
+        // This prevents "email enumeration" attacks
+        return ResponseEntity.ok("If an account with this email exists and is verified, a password reset link has been sent.");
+    }
+
+    // ✅ ADD THIS ENDPOINT
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetRequest resetRequest) {
+
+        boolean success = userService.resetPassword(
+                resetRequest.getToken(),
+                resetRequest.getNewPassword()
+        );
+
+        if (success) {
+            return ResponseEntity.ok("Password has been reset successfully.");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid or expired token.");
+        }
+    }
+
 }

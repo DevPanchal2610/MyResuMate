@@ -134,4 +134,67 @@ public class UserService {
                 "Click the following link to verify your account: " + link
         );
     }
+
+    @Transactional
+    public boolean handleForgotPassword(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        // Only send a reset link if the user exists AND is verified
+        if (userOptional.isPresent() && userOptional.get().isVerified()) {
+            User user = userOptional.get();
+            sendPasswordResetEmail(user);
+            return true;
+        }
+        // Silently fail if user doesn't exist or isn't verified
+        // This prevents attackers from guessing registered emails
+        return false;
+    }
+
+    // ✅ ADD THIS METHOD
+    @Transactional
+    public boolean resetPassword(String token, String newPassword) {
+        Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
+
+        // Check if token is valid and not expired
+        if (optionalToken.isEmpty() || optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
+        VerificationToken verificationToken = optionalToken.get();
+        User user = verificationToken.getUser();
+
+        // Set the new, encoded password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // Delete the token so it can't be used again
+        verificationTokenRepository.delete(verificationToken);
+
+        return true;
+    }
+
+    // ✅ ADD THIS HELPER METHOD (similar to sendVerificationEmail)
+    @Transactional
+    private void sendPasswordResetEmail(User user) {
+        // 1. Delete any old, existing tokens for this user
+        verificationTokenRepository.findByUser(user)
+                .ifPresent(token -> verificationTokenRepository.delete(token));
+
+        // 2. Create a new token
+        String token = UUID.randomUUID().toString();
+        VerificationToken passwordResetToken = VerificationToken.builder()
+                .token(token)
+                .user(user)
+                .expiryDate(LocalDateTime.now().plusHours(1)) // 1-hour expiry for password reset
+                .build();
+        verificationTokenRepository.save(passwordResetToken);
+
+        // 3. Send the email with the *new* reset link
+        String link = "http://localhost:3000/reset-password?token=" + token;
+        emailService.sendEmail(
+                user.getEmail(),
+                "Reset Your Password",
+                "Click the following link to reset your password: " + link + "\nThis link is valid for 1 hour."
+        );
+    }
 }
