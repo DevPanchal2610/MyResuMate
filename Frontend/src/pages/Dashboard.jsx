@@ -2,37 +2,16 @@
 
 import { useState,useEffect } from "react"
 import { Link } from "react-router-dom"
-import { FileText, Download, Eye, Star, TrendingUp, Award, Plus, Clock, CheckCircle } from "lucide-react"
+import { FileText, Download, Eye, Star, TrendingUp, Award, Plus, Clock, CheckCircle, Loader2 } from "lucide-react"
 import Sidebar from "../components/Sidebar.jsx"
 import AnimatedCounter from "../components/AnimatedCounter.jsx"
 import { useNavigate } from "react-router-dom";
+import axios from "axios"
+import { formatDistanceToNow } from "date-fns"
+
 const Dashboard = () => {
-  const [recentResumes, setRecentResumes] = useState([
-    {
-      id: 1,
-      name: "Software Engineer Resume",
-      template: "Modern Tech",
-      lastModified: "2 hours ago",
-      atsScore: 95,
-      status: "completed",
-    },
-    {
-      id: 2,
-      name: "Marketing Manager Resume",
-      template: "Creative Pro",
-      lastModified: "1 day ago",
-      atsScore: 88,
-      status: "draft",
-    },
-    {
-      id: 3,
-      name: "Data Scientist Resume",
-      template: "Clean Minimal",
-      lastModified: "3 days ago",
-      atsScore: 92,
-      status: "completed",
-    },
-  ])
+  const [recentResumes, setRecentResumes] = useState([])
+  const [isLoadingResumes, setIsLoadingResumes] = useState(true)
 
    const [user, setUser] = useState(null)
     const navigate = useNavigate();
@@ -42,8 +21,23 @@ const Dashboard = () => {
         navigate("/auth")
       } else {
         setUser(storedUser)
+        fetchRecentResumes(storedUser.token) // ✅ Fetch resumes on load
       }
     }, [navigate])
+
+    const fetchRecentResumes = async (token) => {
+      setIsLoadingResumes(true);
+      try {
+        const response = await axios.get("http://localhost:8080/api/resumes/my-resumes", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setRecentResumes(response.data);
+      } catch (error) {
+        console.error("Failed to fetch resumes:", error);
+      } finally {
+        setIsLoadingResumes(false);
+      }
+    };
 
   const stats = [
     { label: "Resumes Created", value: 12, icon: <FileText className="w-6 h-6" />, color: "purple" },
@@ -168,42 +162,38 @@ const Dashboard = () => {
                     View All
                   </Link>
                 </div>
+
                 <div className="space-y-4">
-                  {recentResumes.map((resume) => (
-                    <div
-                      key={resume.id}
-                      className="flex items-center justify-between p-4 transition-colors bg-gray-50 rounded-xl hover:bg-gray-100"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
-                          <FileText className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{resume.name}</h3>
-                          <div className="flex items-center space-x-4 text-sm text-gray-600">
-                            <span>{resume.template}</span>
-                            <span>•</span>
-                            <span>{resume.lastModified}</span>
+                  {isLoadingResumes ? (
+                    <div className="flex justify-center items-center h-32">
+                      <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+                    </div>
+                  ) : recentResumes.length === 0 ? (
+                    <p className="text-center text-gray-500">You haven't created any resumes yet.</p>
+                  ) : (
+                    recentResumes.map((resume) => (
+                      <Link 
+                        to={`/builder?resumeId=${resume.id}`} // ✅ Link to builder
+                        key={resume.id}
+                        className="flex items-center justify-between p-4 transition-colors bg-gray-50 rounded-xl hover:bg-gray-100"
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
+                            <FileText className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-gray-900">{resume.resumeTitle}</h3>
+                            <div className="flex items-center space-x-4 text-sm text-gray-600">
+                              <span>{resume.templateName}</span>
+                              <span>•</span>
+                              {/* Format the date */}
+                              <span>{formatDistanceToNow(new Date(resume.lastEdited), { addSuffix: true })}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="flex items-center space-x-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-sm font-medium">{resume.atsScore}</span>
-                        </div>
-                        <div
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            resume.status === "completed"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {resume.status}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                      </Link>
+                    ))
+                  )}
                 </div>
               </div>
 

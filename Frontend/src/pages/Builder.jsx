@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { useSearchParams, useNavigate } from "react-router-dom"
+import axios from "axios"
 import {
   User,
   GraduationCap,
@@ -16,6 +17,7 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
+  Loader2,
   Check,
 } from "lucide-react"
 import Sidebar from "../components/Sidebar.jsx"
@@ -546,30 +548,96 @@ const Certifications = ({ resumeData, updateArrayItem, removeArrayItem, addArray
   </div>
 );
 
+const initialResumeState = {
+  resumeId: null,
+  resumeTitle: "My New Resume",
+  templateKey: "modern", // Default template
+  personal: {
+    firstName: "", lastName: "", title: "", email: "", phone: "",
+    location: "", website: "", linkedin: "", github: "", summary: "",
+  },
+  education: [],
+  experience: [],
+  projects: [],
+  skills: [],
+  certifications: [],
+};
+
 const Builder = () => {
   const [searchParams] = useSearchParams() // <-- Get URL search params
-  const selectedTemplate = searchParams.get("template") || "modern" // <-- Read the 'template' param, with a default
+  const navigate = useNavigate();
+
+ const selectedTemplateKey = searchParams.get("template"); // For NEW resumes
+  const resumeIdToLoad = searchParams.get("resumeId"); // For EXISTING resumes
+
   const [currentStep, setCurrentStep] = useState(0)
   const [showPreview, setShowPreview] = useState(true)
-  const [resumeData, setResumeData] = useState({
-    personal: {
-      firstName: "",
-      lastName: "",
-      title: "",
-      email: "",
-      phone: "",
-      location: "",
-      website: "",
-      linkedin: "",
-      github: "",
-      summary: "",
-    },
-    education: [],
-    experience: [],
-    projects: [],
-    skills: [],
-    certifications: [],
-  })
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Page load spinner
+  const [saveStatus, setSaveStatus] = useState(""); // "Saving...", "Saved!", "Error!"
+  // ✅ STATE INITIALIZATION:
+  // 1. Try to load a draft from session storage.
+  // 2. If no draft, start with the empty state.
+  const [resumeData, setResumeData] = useState(() => {
+    const savedDraft = sessionStorage.getItem("draftResume");
+    if (savedDraft) {
+      try {
+        return JSON.parse(savedDraft);
+      } catch (e) {
+        console.error("Could not parse draft, starting fresh.");
+      }
+    }
+    return initialResumeState;
+  });
+
+  // ✅ MAIN DATA LOADING/HANDLING EFFECT
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!storedUser?.token) {
+        navigate("/auth"); // Not logged in, redirect
+        return;
+    }
+
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        if (resumeIdToLoad) {
+          // --- 1. LOAD EXISTING RESUME (from dashboard) ---
+          const response = await axios.get(
+            `http://localhost:8080/api/resumes/${resumeIdToLoad}`,
+            { headers: { Authorization: `Bearer ${storedUser.token}` } }
+          );
+          setResumeData(response.data); // Load data from API
+          sessionStorage.setItem("draftResume", JSON.stringify(response.data)); // Set as new draft
+
+        } else if (selectedTemplateKey) {
+          // --- 2. CREATE NEW RESUME (from template page) ---
+          // Clear any old draft and start fresh with the new template
+          const newDraft = { ...initialResumeState, templateKey: selectedTemplateKey };
+          setResumeData(newDraft);
+          sessionStorage.setItem("draftResume", JSON.stringify(newDraft));
+        }
+        // --- 3. (Else) Just keep the draft loaded from useState ---
+      } catch (err) {
+        console.error("Failed to load resume", err);
+        navigate("/dashboard"); // On error, go back to dashboard
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [resumeIdToLoad, selectedTemplateKey, navigate]); // This effect re-runs if the URL params change
+
+  
+  // ✅ AUTO-SAVE DRAFT: Save to session storage on any change
+  useEffect(() => {
+    // Only save to session if we are NOT in the initial page load
+    if (!isLoading) {
+      sessionStorage.setItem("draftResume", JSON.stringify(resumeData));
+    }
+  }, [resumeData, isLoading]); // Dependency on resumeData triggers this
 
   const steps = [
     { id: 0, name: "Personal", icon: <User className="w-5 h-5" />, component: "PersonalInfo" },
@@ -627,6 +695,62 @@ const Builder = () => {
     }
   }
 
+// ✅ UPDATED SAVE FUNCTION
+  const handleSaveResume = async () => {
+    setIsSaving(true);
+    setSaveStatus("Saving...");
+
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!storedUser || !storedUser.token) {
+      setIsSaving(false);
+      setSaveStatus("Error: You must be logged in.");
+      navigate("/auth");
+      return;
+    }
+
+    // ✅ PAYLOAD FIX: The payload is just the resumeData state
+    // It now correctly includes the 'resumeId' if it exists
+    // and the 'templateKey'
+    const payload = {
+      ...resumeData,
+      templateKey: resumeData.templateKey || selectedTemplateKey || "modern"
+    };
+    
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/resumes/save",
+        payload,
+        { headers: { Authorization: `Bearer ${storedUser.token}` } }
+      );
+
+      // ✅ DUPLICATION FIX:
+      // Update state with the ID from the backend (for both new and updated resumes)
+      const savedResume = { ...resumeData, resumeId: response.data.id };
+      setResumeData(savedResume);
+      sessionStorage.setItem("draftResume", JSON.stringify(savedResume)); // Update the draft
+      setSaveStatus("Saved!");
+      
+    } catch (err) {
+      console.error("Error saving resume:", err);
+      setSaveStatus(err.response?.data || "Error! Please try again.");
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setSaveStatus(""), 3000);
+    }
+  };
+
+  // ✅ LOADING SPINNER: Show a spinner while fetching data
+  if (isLoading) {
+    return (
+      <div className="min-h-screen pt-16 bg-gradient-to-br from-purple-50 via-pink-50 to-teal-50 flex items-center justify-center">
+        <Loader2 className="w-16 h-16 text-purple-600 animate-spin" />
+      </div>
+    );
+  }
+
+  // ✅ Get the template key from the loaded data
+  const currentTemplateKey = resumeData.templateKey || "modern";
+
  return (
     <div className="min-h-screen pt-16 bg-gradient-to-br from-purple-50 via-pink-50 to-teal-50">
       <div className="flex">
@@ -644,7 +768,13 @@ const Builder = () => {
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h1 className="mb-2 text-3xl font-bold gradient-text">Resume Builder</h1>
-                  <p className="text-gray-600">Create your professional resume step by step</p>
+                  {/* ✅ UPDATED: Title input now uses resumeData state */}
+                  <input 
+                    type="text"
+                    value={resumeData.resumeTitle}
+                    onChange={(e) => setResumeData(prev => ({ ...prev, resumeTitle: e.target.value }))}
+                    className="text-lg text-gray-600 font-medium p-1 -ml-1 rounded-lg border border-transparent hover:border-gray-300 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                  />
                 </div>
                 <div className="flex items-center gap-4">
                   <button
@@ -654,9 +784,17 @@ const Builder = () => {
                     <Eye className="w-4 h-4" />
                     {showPreview ? "Hide" : "Show"} Preview
                   </button>
-                  <button className="flex items-center gap-2 btn-primary">
-                    <Save className="w-4 h-4" />
-                    Save
+                  <button 
+                    onClick={handleSaveResume}
+                    disabled={isSaving}
+                    className="flex items-center gap-2 btn-primary disabled:opacity-75"
+                  >
+                    {isSaving ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Save className="w-4 h-4" />
+                    )}
+                    {saveStatus || "Save"}
                   </button>
                   <button className="flex items-center gap-2 btn-primary">
                     <Download className="w-4 h-4" />
@@ -742,7 +880,7 @@ const Builder = () => {
                 </div>
                 <div className="sticky top-0">
                   {/* === THIS IS THE UPDATED LINE === */}
-                  <ResumePreview resumeData={resumeData} template={selectedTemplate} />
+                  <ResumePreview resumeData={resumeData} template={currentTemplateKey} />
                 </div>
               </div>
             </div>

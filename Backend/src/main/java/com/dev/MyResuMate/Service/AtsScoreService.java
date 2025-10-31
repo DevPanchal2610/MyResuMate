@@ -22,7 +22,7 @@ public class AtsScoreService {
     );
 
     // This is a new public method that returns both the score and the feedback.
-    public ScoreWithFeedback analyzeAndScore(Resume content, DesignAnalysis design) {
+    public ScoreWithFeedback analyzeAndScore(Resume1 content, DesignAnalysis design) {
         List<FeedbackItem> feedback = new ArrayList<>();
 
         // Each category is scored out of 100, then weighted.
@@ -42,7 +42,7 @@ public class AtsScoreService {
     public record ScoreWithFeedback(int score, List<FeedbackItem> feedback) {}
 
 
-    private int scoreCompleteness(Resume content, List<FeedbackItem> feedback) {
+    private int scoreCompleteness(Resume1 content, List<FeedbackItem> feedback) {
         int points = 0;
         if (content.contact_info() != null && StringUtils.hasText(content.contact_info().email()) && StringUtils.hasText(content.contact_info().phone())) {
             points += 40;
@@ -93,7 +93,7 @@ public class AtsScoreService {
         return Math.max(0, score);
     }
 
-    private int scoreImpactAndMeasurability(Resume content, List<FeedbackItem> feedback) {
+    private int scoreImpactAndMeasurability(Resume1 content, List<FeedbackItem> feedback) {
         Pattern measurablePattern = Pattern.compile("(\\d+%|\\$\\d+|\\d[kKmMbB]?|\\d{2,})");
         List<String> allBulletPoints = getAllBulletPoints(content);
         if (allBulletPoints.isEmpty()) {
@@ -116,7 +116,7 @@ public class AtsScoreService {
         }
     }
 
-    private int scoreClarityAndBrevity(Resume content, List<FeedbackItem> feedback) {
+    private int scoreClarityAndBrevity(Resume1 content, List<FeedbackItem> feedback) {
         int score = 100;
         if (content.profile_summary() != null) {
             int summaryLength = content.profile_summary().split("\\s+").length;
@@ -132,7 +132,7 @@ public class AtsScoreService {
         return Math.max(0, score);
     }
 
-    private int scoreKeywordOptimization(Resume content, List<FeedbackItem> feedback) {
+    private int scoreKeywordOptimization(Resume1 content, List<FeedbackItem> feedback) {
         List<String> allBulletPoints = getAllBulletPoints(content);
         if (allBulletPoints.isEmpty()) return 0;
 
@@ -161,7 +161,7 @@ public class AtsScoreService {
         return (int) ((actionVerbRatio * 60) + (skillMentionRatio * 40));
     }
 
-    private List<String> getAllBulletPoints(Resume content) {
+    private List<String> getAllBulletPoints(Resume1 content) {
         return Stream.concat(
                         (content.projects() != null ? content.projects().stream() : Stream.empty()),
                         (content.work_experience() != null ? content.work_experience().stream() : Stream.empty())

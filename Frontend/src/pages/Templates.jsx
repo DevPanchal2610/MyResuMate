@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { Search, Filter, Grid, List, Star, Crown, Zap } from "lucide-react"
+import { useState, useEffect } from "react"
+import axios from "axios"
+import { Search, Filter, Grid, List, Star, Crown, Zap, Loader2 } from "lucide-react"
 import Sidebar from "../components/Sidebar.jsx"
 import TemplateCard from "../components/TemplateCard.jsx"
 import ParallaxSection from "../components/ParallaxSection.jsx"
@@ -11,6 +12,8 @@ const Templates = () => {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedType, setSelectedType] = useState("all")
   const [viewMode, setViewMode] = useState("grid")
+  const [templates, setTemplates] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const categories = [
     { id: "all", name: "All Templates", count: 50 },
@@ -21,48 +24,38 @@ const Templates = () => {
     { id: "education", name: "Education", count: 5 },
   ]
 
-   const templates = [
-    {
-      id: "modern", // Changed from 1 to "modern"
-      name: "Modern Professional",
-      description: "Clean and modern template perfect for software engineers and tech professionals.",
-      category: "tech",
-      isPremium: false,
-      rating: 4.8,
-      downloads: 15420,
-      tags: ["Modern", "Tech", "Clean", "ATS-Friendly"],
-      preview: "/previews/modern.png", // Suggest using a /previews folder
-    },
-    {
-      id: "professional", // This is a new template
-      name: "Executive Professional",
-      description: "A professional two-column layout ideal for experienced roles and corporate environments.",
-      category: "business",
-      isPremium: true,
-      rating: 4.9,
-      downloads: 8930,
-      tags: ["Executive", "Two-Column", "Premium", "Formal"],
-      preview: "/previews/professional.png",
-    },
-    {
-      id: "chronological", // This is another new template
-      name: "Chronological Classic",
-      description: "A classic, top-down chronological template that is highly ATS-friendly and easy to read.",
-      category: "all",
-      isPremium: false,
-      rating: 4.7,
-      downloads: 22100,
-      tags: ["Classic", "ATS", "Simple", "Minimalist"],
-      preview: "/previews/chronological.png",
-    },
-    // ... add your other templates here with string IDs ...
-  ]
+// ✅ Fetch templates from backend on component mount
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get("http://localhost:8080/api/templates");
+        // Map backend 'templateKey' to frontend 'id' for the TemplateCard
+        // And map 'tags' from comma-separated string to an array
+        const formattedTemplates = response.data.map(template => ({
+          ...template,
+          id: template.templateKey, // Use templateKey for the link
+          name: template.templateName,
+          tags: template.tags ? template.tags.split(',') : []
+        }));
+        setTemplates(formattedTemplates);
+      } catch (error) {
+        console.error("Error fetching templates:", error);
+        // You could set an error state here
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const filteredTemplates = templates.filter((template) => {
+    fetchTemplates();
+  }, []); // Empty dependency array means this runs once on mount
+
+ const filteredTemplates = templates.filter((template) => {
+    // ❗️ UPDATE THIS BLOCK
     const matchesSearch =
-      template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      template.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      template.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      (template.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (template.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      template.tags.some((tag) => (tag || "").toLowerCase().includes(searchTerm.toLowerCase()))
 
     const matchesCategory = selectedCategory === "all" || template.category === selectedCategory
     const matchesType =
@@ -184,38 +177,52 @@ const Templates = () => {
                 Showing {filteredTemplates.length} of {templates.length} templates
               </p>
             </div>
-
-            {/* Templates Grid */}
-            <div
-              className={`grid gap-8 ${
-                viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"
-              }`}
-            >
-              {filteredTemplates.map((template) => (
-                <TemplateCard key={template.id} template={template} />
-              ))}
-            </div>
-
-            {/* No Results */}
-            {filteredTemplates.length === 0 && (
-              <div className="py-16 text-center">
-                <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full">
-                  <Search className="w-12 h-12 text-gray-400" />
-                </div>
-                <h3 className="mb-2 text-xl font-semibold text-gray-900">No templates found</h3>
-                <p className="mb-6 text-gray-600">Try adjusting your search criteria or browse all templates.</p>
-                <button
-                  onClick={() => {
-                    setSearchTerm("")
-                    setSelectedCategory("all")
-                    setSelectedType("all")
-                  }}
-                  className="btn-primary"
-                >
-                  Clear Filters
-                </button>
+            
+            {/* ✅ ADD LOADING SPINNER */}
+            {isLoading ? (
+              
+              <div className="flex justify-center items-center h-64">
+                <Loader2 className="w-12 h-12 text-purple-600 animate-spin" />
               </div>
+
+            ) : (
+              
+              <> {/* If not loading, show either templates or no results */}
+
+                {/* Templates Grid */}
+                <div
+                  className={`grid gap-8 ${
+                    viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"
+                  }`}
+                >
+                  {filteredTemplates.map((template) => (
+                    <TemplateCard key={template.id} template={template} />
+                  ))}
+                </div>
+
+                {/* No Results (Only shows if not loading AND no templates) */}
+                {filteredTemplates.length === 0 && (
+                  <div className="py-16 text-center">
+                    <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full">
+                      <Search className="w-12 h-12 text-gray-400" />
+                    </div>
+                    <h3 className="mb-2 text-xl font-semibold text-gray-900">No templates found</h3>
+                    <p className="mb-6 text-gray-600">Try adjusting your search criteria or browse all templates.</p>
+                    <button
+                      onClick={() => {
+                        setSearchTerm("")
+                        setSelectedCategory("all")
+                        setSelectedType("all")
+                      }}
+                      className="btn-primary"
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
+                )}
+              </>
             )}
+            
           </div>
         </div>
       </div>

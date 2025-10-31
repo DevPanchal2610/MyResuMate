@@ -11,16 +11,22 @@ import com.dev.MyResuMate.Repository.UserRepository;
 import com.dev.MyResuMate.Repository.VerificationTokenRepository;
 import com.dev.MyResuMate.Security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.ArrayList;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
@@ -37,16 +43,44 @@ public class UserService {
     @Autowired
     private EmailService emailService;
 
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        // Create a list of authorities (roles)
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(user.getRole())); // e.g., "ROLE_USER"
+
+        // Create Spring Security UserDetails object
+        // This now correctly uses the user's role
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                user.isVerified(), // enabled (User can't log in if not verified)
+                true, // accountNonExpired
+                true, // credentialsNonExpired
+                user.isActive(), // accountNonLocked (Your 'isActive' field)
+                authorities // ✅ Use the roles list
+        );
+    }
+
     public LoginResponse login(LoginRequest loginRequest) {
         Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                String token = jwtUtil.generateToken(user.getEmail());
-                // Password hide kar dena before sending to frontend
-                user.setPassword(null);
-                return new LoginResponse("Login successful", true, user, token);
+                if (user.isVerified()) {
+                    String token = jwtUtil.generateToken(user.getEmail());
+                    // Password hide kar dena before sending to frontend
+                    user.setPassword(null);
+                    return new LoginResponse("Login successful", true, user, token);
+                } else {
+                    // User is not verified
+                    return new LoginResponse("Please verify your email before logging in.", false, null, null);
+                }
             } else {
                 return new LoginResponse("Invalid password", false, null, null);
             }
@@ -91,6 +125,8 @@ public class UserService {
                     .password(passwordEncoder.encode(request.getPassword())) // 🔐 hash password
                     .premium(false)
                     .verified(false) // initially false
+                    .role("USER")
+                    .isActive(true)
                     .build();
 
             User savedUser = userRepository.save(newUser);
@@ -115,7 +151,11 @@ public class UserService {
     private void sendVerificationEmail(User user) {
         // 1. Delete any old, existing tokens for this user
         verificationTokenRepository.findByUser(user)
-                .ifPresent(token -> verificationTokenRepository.delete(token));
+                .ifPresent(token -> {
+                    if ("EMAIL_VERIFICATION".equals(token.getTokenType())) {
+                        verificationTokenRepository.delete(token);
+                    }
+                });
 
         // 2. Create a new token
         String token = UUID.randomUUID().toString();
@@ -123,6 +163,7 @@ public class UserService {
                 .token(token)
                 .user(user)
                 .expiryDate(LocalDateTime.now().plusHours(24))
+                .tokenType("EMAIL_VERIFICATION")
                 .build();
         verificationTokenRepository.save(verificationToken);
 
@@ -150,13 +191,14 @@ public class UserService {
         return false;
     }
 
-    // ✅ ADD THIS METHOD
     @Transactional
     public boolean resetPassword(String token, String newPassword) {
         Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(token);
 
-        // Check if token is valid and not expired
-        if (optionalToken.isEmpty() || optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+        // Check if token is valid, not expired, AND is a PASSWORD_RESET token
+        if (optionalToken.isEmpty() ||
+                optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now()) ||
+                !"PASSWORD_RESET".equals(optionalToken.get().getTokenType())) {
             return false;
         }
 
@@ -173,19 +215,23 @@ public class UserService {
         return true;
     }
 
-    // ✅ ADD THIS HELPER METHOD (similar to sendVerificationEmail)
     @Transactional
     private void sendPasswordResetEmail(User user) {
         // 1. Delete any old, existing tokens for this user
         verificationTokenRepository.findByUser(user)
-                .ifPresent(token -> verificationTokenRepository.delete(token));
+                .ifPresent(token -> {
+                    if ("PASSWORD_RESET".equals(token.getTokenType())) {
+                        verificationTokenRepository.delete(token);
+                    }
+                });
 
         // 2. Create a new token
         String token = UUID.randomUUID().toString();
         VerificationToken passwordResetToken = VerificationToken.builder()
                 .token(token)
                 .user(user)
-                .expiryDate(LocalDateTime.now().plusHours(1)) // 1-hour expiry for password reset
+                .expiryDate(LocalDateTime.now().plusHours(1))
+                .tokenType("PASSWORD_RESET")// 1-hour expiry for password reset
                 .build();
         verificationTokenRepository.save(passwordResetToken);
 

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/chat")
-//@CrossOrigin(origins = "http://localhost:3000") // Allows your React app to connect
 public class ChatController {
 
     @Autowired

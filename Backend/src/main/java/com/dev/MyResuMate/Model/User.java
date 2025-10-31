@@ -29,4 +29,10 @@ public class User {
 
     @Column(nullable = false)
     private boolean premium = false;  // default false
+
+    @Column(nullable = false)
+    private String role = "USER"; // Default role
+
+    @Column(nullable = false)
+    private boolean isActive = true; // Default to active
 }

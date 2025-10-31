@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation,useNavigate } from "react-router-dom"
 import {
   User,
   FileText,
@@ -16,15 +16,20 @@ import {
   MessageCircle,
 } from "lucide-react"
 
-const handleLogout = () => {
-  localStorage.removeItem("user")
-  window.location.href = "/auth"
-}
-
 const Sidebar = () => {
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false)
   const location = useLocation()
   const [user, setUser] = useState(null)
+
+const handleLogout = () => {
+    // Clear all storage
+    localStorage.clear();    // Clears "user" token and everything else
+    sessionStorage.clear();  // Clears "draftResume" and everything else
+
+    // Redirect to auth page
+    navigate("/auth");
+  };
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"))

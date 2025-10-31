@@ -39,6 +39,9 @@ public class UserController {
         } else if ("Invalid password".equals(response.getMessage())) {
             // ❌ Wrong password → return 401
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        } else if ("Please verify your email before logging in.".equals(response.getMessage())) {
+            // ❌ User not verified → return 403 (Forbidden)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         } else {
             // ❌ User not found → return 404
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -61,7 +64,10 @@ public class UserController {
     public ResponseEntity<String> verifyEmail(@RequestBody VerifyRequest request) {
         Optional<VerificationToken> optionalToken = verificationTokenRepository.findByToken(request.getToken());
 
-        if (optionalToken.isEmpty() || optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+        // Check if token is valid, not expired, AND is an EMAIL_VERIFICATION token
+        if (optionalToken.isEmpty() ||
+                optionalToken.get().getExpiryDate().isBefore(LocalDateTime.now()) ||
+                !"EMAIL_VERIFICATION".equals(optionalToken.get().getTokenType())) {
             return ResponseEntity.badRequest().body("Invalid or expired verification token");
         }
 

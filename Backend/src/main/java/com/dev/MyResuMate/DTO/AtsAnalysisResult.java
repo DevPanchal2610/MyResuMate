@@ -5,7 +5,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AtsAnalysisResult(
-        Resume content,
+        Resume1 content,
         DesignAnalysis design,
         int atsScore,
         List<FeedbackItem> feedbackItems, // The new detailed feedback list

@@ -1,6 +1,6 @@
 package com.dev.MyResuMate.Service;
 
-import com.dev.MyResuMate.DTO.Resume;
+import com.dev.MyResuMate.DTO.Resume1;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +25,7 @@ public class GeminiSuggestionService {
         this.geminiApiKey = geminiApiKey;
     }
 
-    public List<String> getSuggestions(Resume resumeContent) throws JsonProcessingException {
+    public List<String> getSuggestions(Resume1 resumeContent) throws JsonProcessingException {
         String resumeJson = mapper.writeValueAsString(resumeContent);
 
         String prompt = "You are an expert career coach and professional resume writer. Based on the following resume data in JSON format, provide a list of 5-7 specific, actionable, and encouraging suggestions for improvement. Focus on content, clarity, and impact. Do not comment on design (like photos or fonts). Respond with only a JSON object containing a single key 'suggestions' which is an array of strings. Your response must be only the raw JSON object, starting with '{' and ending with '}'.";

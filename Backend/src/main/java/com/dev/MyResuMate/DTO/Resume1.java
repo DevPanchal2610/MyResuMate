@@ -1,11 +1,11 @@
 package com.dev.MyResuMate.DTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record Resume(
+public record Resume1(
         ContactInfo contact_info,
         String profile_summary,
         List<EducationEntry> education,
