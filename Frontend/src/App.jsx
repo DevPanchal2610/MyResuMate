@@ -17,6 +17,7 @@ import Pricing from "./pages/Pricing.jsx"
 import Contact from "./pages/Contact.jsx"
 import NotFound from "./pages/NotFound.jsx"
 import VerifyEmail from "./pages/VerifyEmail.jsx";
+import MyResumes from "./pages/MyResumes.jsx";
 
 // ✅ Protected Route Component
 const PrivateRoute = ({ children }) => {
@@ -77,6 +78,7 @@ function App() {
                 }
               />
               <Route path="/verify" element={<VerifyEmail />} />
+              <Route path="/my-resumes" element={<MyResumes />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="*" element={<NotFound />} />

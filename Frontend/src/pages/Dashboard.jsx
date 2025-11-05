@@ -51,7 +51,7 @@ const Dashboard = () => {
       title: "Create New Resume",
       description: "Start building a new resume from scratch",
       icon: <Plus className="w-8 h-8" />,
-      link: "/builder",
+      link: "/builder?new=true",
       color: "purple",
     },
     {
@@ -158,9 +158,9 @@ const Dashboard = () => {
               <div className="p-6 bg-white shadow-lg rounded-2xl">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-gray-900">Recent Resumes</h2>
-                  <Link to="/builder" className="text-sm font-medium text-purple-600 hover:text-purple-700">
-                    View All
-                  </Link>
+                  <Link to="/my-resumes" className="text-sm font-medium text-purple-600 hover:text-purple-700">
+                    View All
+                  </Link>
                 </div>
 
                 <div className="space-y-4">
@@ -171,7 +171,7 @@ const Dashboard = () => {
                   ) : recentResumes.length === 0 ? (
                     <p className="text-center text-gray-500">You haven't created any resumes yet.</p>
                   ) : (
-                    recentResumes.map((resume) => (
+                    recentResumes.slice(0, 3).map((resume) => (
                       <Link 
                         to={`/builder?resumeId=${resume.id}`} // ✅ Link to builder
                         key={resume.id}

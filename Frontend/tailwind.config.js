@@ -35,5 +35,13 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        '.break-inside-avoid': {
+          'break-inside': 'avoid',
+        },
+      })
+    },
+  ],
 }

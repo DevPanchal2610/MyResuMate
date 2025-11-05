@@ -17,7 +17,7 @@ public class ResumeMapper {
         resume.setResumeTitle(dto.getResumeTitle());
 
         // Map child objects
-        resume.setPersonalInfo(mapPersonalInfo(dto.getPersonal(), resume));
+        resume.setPersonalInfo(mapPersonalInfo(dto.getPersonal(), resume.getPersonalInfo(), resume));
 
         // ❗️ vvvvvv THIS IS THE CORRECTED LOGIC vvvvvv
         // We now check if the list from the DTO is null before trying to stream it.
@@ -64,10 +64,13 @@ public class ResumeMapper {
 
     // --- (All the helper mappers below are correct, no changes needed) ---
 
-    private ResumePersonalInfo mapPersonalInfo(PersonalInfoDTO dto, Resume resume) {
+    private ResumePersonalInfo mapPersonalInfo(PersonalInfoDTO dto, ResumePersonalInfo info, Resume resume) {
         if (dto == null) return null;
-        ResumePersonalInfo info = new ResumePersonalInfo();
-        info.setResume(resume);
+        // If the existing 'info' is null (like in a new resume), create it
+        if (info == null) {
+            info = new ResumePersonalInfo();
+            info.setResume(resume);
+        }
         info.setFirstName(dto.getFirstName());
         info.setLastName(dto.getLastName());
         info.setProfessionalTitle(dto.getTitle()); // Mapped from 'title'
