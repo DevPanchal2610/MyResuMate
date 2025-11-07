@@ -38,6 +38,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/templates/**").permitAll()
                         .requestMatchers("/api/chat/**").permitAll()
                         .requestMatchers("/api/ats/**").permitAll()
+                        .requestMatchers("/api/contact/**").permitAll()
+                        .requestMatchers("/api/payments/**").permitAll()
+                        .requestMatchers("/api/plans/**").permitAll()
+                        .requestMatchers("/api/subscriptions/**").permitAll()
                         .requestMatchers("/api/resumes/**").authenticated() // This endpoint needs a valid token
                         .anyRequest().authenticated() // All other endpoints need a valid token
                 )

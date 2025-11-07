@@ -35,6 +35,8 @@ public class JwtFilter extends OncePerRequestFilter {
                 requestPath.startsWith("/api/auth/verify") ||
                 requestPath.startsWith("/api/auth/forgot-password") ||
                 requestPath.startsWith("/api/auth/reset-password") ||
+                requestPath.startsWith("/api/contact/submit") ||
+                requestPath.startsWith("/api/plans") ||
                 requestPath.startsWith("/api/templates")) {
             filterChain.doFilter(request, response);
             return;

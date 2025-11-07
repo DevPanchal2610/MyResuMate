@@ -933,12 +933,12 @@ const Builder = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex flex-1">
+        <div className="flex flex-1 overflow-x-auto">
           {/* Form Section */}
-          <div className={`${showPreview ? "w-1/2" : "w-full"} overflow-x-auto transition-all duration-300`}>
+          <div className={`${showPreview ? "flex-shrink-0" : "w-full"} transition-all duration-300`}>
             <div className="p-8 min-w-[600px]">
               {/* Header */}
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
                 <div>
                   <h1 className="mb-2 text-3xl font-bold gradient-text">Resume Builder</h1>
                   {/* ✅ UPDATED: Title input now uses resumeData state */}
@@ -950,7 +950,7 @@ const Builder = () => {
                     maxLength={100}
                   />
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                   <button
                     onClick={() => setShowPreview(!showPreview)}
                     className="flex items-center gap-2 btn-secondary"
@@ -1060,7 +1060,7 @@ const Builder = () => {
           {/* ✅ UPDATED: PREVIEW SECTION */}
           {/* ========================================================== */}
           {showPreview && (
-            <div className="w-1/2 overflow-auto bg-gray-300 p-8">
+            <div className="flex-1 w-1/2 min-w-[400px] overflow-auto bg-gray-300 p-8">
               <div className="mb-4">
                 <h2 className="mb-2 text-xl font-bold text-gray-900">Live Preview</h2>
                 <p className="text-sm text-gray-600">See how your resume looks in real-time</p>

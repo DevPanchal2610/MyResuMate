@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { Mail, Phone, MapPin, Clock, Send, MessageCircle, HelpCircle, Headphones } from "lucide-react"
+import { useState, useEffect } from "react"
+import axios from "axios"
+import { Mail, Phone, MapPin, Clock, Send, MessageCircle, HelpCircle, Headphones, Loader2 } from "lucide-react"
 import Sidebar from "../components/Sidebar.jsx"
 import ParallaxSection from "../components/ParallaxSection.jsx"
 
@@ -16,23 +17,56 @@ const Contact = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [user, setUser] = useState(null)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser?.token) {
+      setUser(storedUser);
+    }
+  }, []);
 
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
-  }
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    })
+    if (error) setError(""); // Clear error on new input
+  }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    // TODO: Connect to backend API
-    setTimeout(() => {
-      setIsSubmitting(false)
-      setSubmitted(true)
-    }, 2000)
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setError("") // Clear old errors
+    
+    try {
+      // 1. Prepare headers
+      const headers = {
+        "Content-Type": "application/json",
+      };
+      // If user is logged in, add their token
+      if (user?.token) {
+        headers["Authorization"] = `Bearer ${user.token}`;
+      }
+
+      // 2. Send data to your Spring Boot API
+      await axios.post(
+        "http://localhost:8080/api/contact/submit",
+        formData,
+        { headers: headers }
+      );
+
+      // 3. Handle success
+      setIsSubmitting(false)
+      setSubmitted(true)
+    } catch (err) {
+      // 4. Handle error
+      console.error("Contact form submission failed:", err)
+      setError("Failed to send message. Please check your details or try again later.")
+      setIsSubmitting(false)
+    }
+  }
 
   const contactMethods = [
     {
@@ -252,7 +286,11 @@ const Contact = () => {
                         placeholder="Please provide as much detail as possible..."
                       />
                     </div>
-
+                      {error && (
+                      <div className="p-3 text-sm text-center text-red-700 bg-red-100 rounded-xl">
+                        {error}
+                      </div>
+                    )}
                     <button
                       type="submit"
                       disabled={isSubmitting}
@@ -262,7 +300,7 @@ const Contact = () => {
                     >
                       {isSubmitting ? (
                         <>
-                          <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin" />
+                          <Loader2 className="w-5 h-5 animate-spin" />
                           Sending...
                         </>
                       ) : (

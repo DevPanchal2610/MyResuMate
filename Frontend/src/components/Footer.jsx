@@ -83,7 +83,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center">
           <p className="text-gray-300">
-            © 2024 MyResuMate. All rights reserved. Built with ❤️ for job seekers worldwide.
+            © 2025 MyResuMate. All rights reserved. Built with ❤️ for job seekers worldwide.
           </p>
         </div>
       </div>

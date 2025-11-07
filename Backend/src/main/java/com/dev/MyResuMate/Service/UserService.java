@@ -123,7 +123,7 @@ public class UserService implements UserDetailsService {
                     .name(request.getName())
                     .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getPassword())) // 🔐 hash password
-                    .premium(false)
+                    .isPremium(false)
                     .verified(false) // initially false
                     .role("USER")
                     .isActive(true)

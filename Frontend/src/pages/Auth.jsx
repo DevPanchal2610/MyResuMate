@@ -71,7 +71,7 @@ const Auth = () => {
 
       const response = await axios.post(endpoint, payload);
 
-      console.log("✅ Success:", response.data);
+//       console.log("✅ Success:", response.data);
 
       if (activeTab === "signup") {
         setMessage(response.data.message || "Signup successful! Please check your email to verify your account.");

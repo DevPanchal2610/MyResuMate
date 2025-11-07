@@ -10,6 +10,7 @@ import {
   CreditCard,
   Settings,
   LogOut,
+  LogIn,
   ChevronLeft,
   ChevronRight,
   Sparkles,
@@ -45,7 +46,7 @@ const handleLogout = () => {
     { icon: <Shield className="w-6 h-6" />, label: "ATS Validator", path: "/ats" },
     { icon: <MessageCircle className="w-6 h-6" />, label: "Chatbot", path: "/chatbot" },
     { icon: <CreditCard className="w-6 h-6" />, label: "Subscription", path: "/pricing" },
-    { icon: <Settings className="w-6 h-6" />, label: "Settings", path: "/settings" },
+    // { icon: <Settings className="w-6 h-6" />, label: "Settings", path: "/settings" },
   ]
 
   return (
@@ -105,29 +106,60 @@ const handleLogout = () => {
       {/* User Profile */}
       <div className="p-4 border-t border-gray-200">
         <div className="flex items-center p-3 space-x-3 transition-colors cursor-pointer rounded-xl hover:bg-gray-100">
-          <img
-            src="/Dev image.jpg"
-            alt="Profile"
-            className="w-8 h-8 rounded-full"
-          />
-          {!collapsed && (
-            <div className="flex-1">
-              <div className="text-sm font-medium text-gray-900">
-                {user?.user?.name || "Guest"}
-              </div>
-              <div className="text-xs text-gray-500">
-                {user?.user?.premium ? "Premium User" : "Normal User"}
-              </div>
-            </div>
-          )}
+          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+            <User className="w-5 h-5 text-gray-600" />
+          </div>
+          {user?.user ? (
+  // ✅ If user is logged in
+  <>
+    {!collapsed && (
+      <div className="flex-1">
+        <div className="text-sm font-medium text-gray-900">
+          {user?.user?.name || "Guest"}
         </div>
-        {!collapsed && (
-        <button onClick={handleLogout} className="flex items-center w-full p-3 mt-2 space-x-3 text-gray-700 transition-colors rounded-xl hover:bg-gray-100">
-          <LogOut className="w-5 h-5" />
-          <span className="font-medium">Sign Out</span>
-        </button>
+        <div className="text-xs text-gray-500">
+          {user?.user?.premium ? "Premium User" : "Normal User"}
+        </div>
+      </div>
+    )}
+  </>
+) : (
+  // 🚫 If user is NOT logged in
+  !collapsed && (
+    <div className="flex-1">
+      <div className="text-sm font-medium text-gray-900">Guest</div>
+      <div className="text-xs text-gray-500">Not Signed In</div>
+    </div>
+  )
+)}
 
-        )}
+</div>
+
+{/* Auth Button Section */}
+{user?.user ? (
+  // ✅ If logged in → Show Logout button
+  !collapsed && (
+    <button
+      onClick={handleLogout}
+      className="flex items-center w-full p-3 mt-2 space-x-3 text-gray-700 transition-colors rounded-xl hover:bg-gray-100"
+    >
+      <LogOut className="w-5 h-5" />
+      <span className="font-medium">Sign Out</span>
+    </button>
+  )
+) : (
+  // 🚪 If not logged in → Show Sign In button
+  !collapsed && (
+    <button
+      onClick={() => navigate("/auth")} // 👈 navigate to login/auth page
+      className="flex items-center w-full p-3 mt-2 space-x-3 text-gray-700 transition-colors rounded-xl hover:bg-gray-100"
+    >
+      <LogIn className="w-5 h-5" />
+      <span className="font-medium">Sign In</span>
+    </button>
+  )
+)}
+
       </div>
     </div>
   )

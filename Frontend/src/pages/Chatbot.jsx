@@ -38,13 +38,28 @@ const Chatbot = () => {
     setLoading(true)
 
     try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user || !user.token) {
+        throw new Error("User not authenticated");
+      }
+
       const response = await fetch("http://localhost:8080/api/chat/resume-helper", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            // ✅ Send the auth token
+            "Authorization": `Bearer ${user.token}` 
+        },
         body: JSON.stringify({ message: input })
       })
 
       if (!response.ok) {
+        // ✅ CATCH THE LIMIT ERROR
+        if (response.status === 429) {
+          const errorData = await response.json();
+          // Use the error message from the backend
+          throw new Error(errorData.error || "You have reached your free prompt limit.");
+        }
         const errorText = await response.text()
         throw new Error(`Server error: ${errorText}`)
       }
@@ -55,7 +70,16 @@ const Chatbot = () => {
 
     } catch (error) {
       console.error("Chatbot API error:", error)
-      setMessages((prev) => [...prev, { sender: "bot", text: "⚠️ Something went wrong. Please try again later." }])
+      
+      // ✅ Show a specific message for the limit
+      let botErrorText = "⚠️ Something went wrong. Please try again later.";
+      if (error.message.includes("limit")) {
+        botErrorText = "✨ You've used all your free prompts. Upgrade to Premium for unlimited access!";
+      } else if (error.message.includes("authenticated")) {
+        botErrorText = "⚠️ Please log in to use the AI Assistant.";
+      }
+
+      setMessages((prev) => [...prev, { sender: "bot", text: botErrorText }])
     } finally {
       setLoading(false)
     }

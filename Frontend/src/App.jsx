@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { Toaster } from 'react-hot-toast';
 import SmoothScrollProvider from "./components/SmoothScrollProvider.jsx"
 import Navbar from "./components/Navbar.jsx"
 import Footer from "./components/Footer.jsx"
@@ -18,6 +19,7 @@ import Contact from "./pages/Contact.jsx"
 import NotFound from "./pages/NotFound.jsx"
 import VerifyEmail from "./pages/VerifyEmail.jsx";
 import MyResumes from "./pages/MyResumes.jsx";
+import HomeWithIntro from "./pages/HomeWithIntro.jsx"
 
 // ✅ Protected Route Component
 const PrivateRoute = ({ children }) => {
@@ -27,13 +29,14 @@ const PrivateRoute = ({ children }) => {
 
 function App() {
   return (
+    <>
     <Router>
       <SmoothScrollProvider>
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-teal-50">
           <Navbar />
           <main>
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<HomeWithIntro />} />
               <Route path="/about" element={<About />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} /> 
@@ -88,6 +91,8 @@ function App() {
         </div>
       </SmoothScrollProvider>
     </Router>
+    {/* <Toaster position="top-right" /> */}
+    </>
   )
 }
 

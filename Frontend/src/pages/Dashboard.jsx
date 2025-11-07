@@ -39,12 +39,12 @@ const Dashboard = () => {
       }
     };
 
-  const stats = [
-    { label: "Resumes Created", value: 12, icon: <FileText className="w-6 h-6" />, color: "purple" },
-    { label: "Downloads", value: 45, icon: <Download className="w-6 h-6" />, color: "pink" },
-    { label: "Profile Views", value: 234, icon: <Eye className="w-6 h-6" />, color: "teal" },
-    { label: "ATS Score Avg", value: 91, icon: <Star className="w-6 h-6" />, color: "green", suffix: "%" },
-  ]
+  // ADD THIS BLOCK before your return()
+  const stats = [
+    { label: "Resumes Created", value: recentResumes.length, icon: <FileText className="w-6 h-6" />, color: "purple" },
+    { label: "Downloads", value: 45, icon: <Download className="w-6 h-6" />, color: "pink" },
+    { label: "ATS Score Avg", value: 91, icon: <Star className="w-6 h-6" />, color: "green", suffix: "%" },
+  ]
 
   const quickActions = [
     {
@@ -95,7 +95,7 @@ const Dashboard = () => {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-3">
               {stats.map((stat, index) => (
                 <div
                   key={index}
@@ -153,7 +153,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-8">
               {/* Recent Resumes */}
               <div className="p-6 bg-white shadow-lg rounded-2xl">
                 <div className="flex items-center justify-between mb-6">
@@ -197,7 +197,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Recent Activity */}
+              {/* Recent Activity
               <div className="p-6 bg-white shadow-lg rounded-2xl">
                 <h2 className="mb-6 text-xl font-bold text-gray-900">Recent Activity</h2>
                 <div className="space-y-4">
@@ -218,7 +218,7 @@ const Dashboard = () => {
                     </div>
                   ))}
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
