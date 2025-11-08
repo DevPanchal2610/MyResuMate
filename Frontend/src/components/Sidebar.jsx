@@ -118,7 +118,7 @@ const handleLogout = () => {
           {user?.user?.name || "Guest"}
         </div>
         <div className="text-xs text-gray-500">
-          {user?.user?.premium ? "Premium User" : "Normal User"}
+          {user?.user?.isPremium ? "Premium User" : "Normal User"}
         </div>
       </div>
     )}

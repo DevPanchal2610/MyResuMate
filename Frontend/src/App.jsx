@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound.jsx"
 import VerifyEmail from "./pages/VerifyEmail.jsx";
 import MyResumes from "./pages/MyResumes.jsx";
 import HomeWithIntro from "./pages/HomeWithIntro.jsx"
+import TemplateDetails from "./pages/TemplateDetails";
 
 // ✅ Protected Route Component
 const PrivateRoute = ({ children }) => {
@@ -61,6 +62,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <Templates />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/templates/:templateId"
+                element={
+                  <PrivateRoute>
+                    <TemplateDetails />
                   </PrivateRoute>
                 }
               />

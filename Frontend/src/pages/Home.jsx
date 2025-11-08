@@ -117,7 +117,7 @@ const Home = () => {
     { number: 250000, suffix: "+", label: "Resumes Created" },
     { number: 95, suffix: "%", label: "ATS Pass Rate" },
     { number: 180000, suffix: "+", label: "Jobs Landed" },
-    { number: 4.9, suffix: "/5", label: "User Rating" },
+    { number: 3.9, suffix: "/5", label: "User Rating" },
   ]
 
   const testimonials = [

@@ -2,7 +2,7 @@
 
 import { useState,useEffect } from "react"
 import { Link } from "react-router-dom"
-import { FileText, Download, Eye, Star, TrendingUp, Award, Plus, Clock, CheckCircle, Loader2 } from "lucide-react"
+import { FileText, Download, Eye, Star, TrendingUp, Award, Plus, Clock, CheckCircle, Loader2, LayoutGrid } from "lucide-react"
 import Sidebar from "../components/Sidebar.jsx"
 import AnimatedCounter from "../components/AnimatedCounter.jsx"
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,7 @@ import { formatDistanceToNow } from "date-fns"
 const Dashboard = () => {
   const [recentResumes, setRecentResumes] = useState([])
   const [isLoadingResumes, setIsLoadingResumes] = useState(true)
+  const [totalDownloads, setTotalDownloads] = useState(0);
 
    const [user, setUser] = useState(null)
     const navigate = useNavigate();
@@ -32,6 +33,10 @@ const Dashboard = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         setRecentResumes(response.data);
+        const total = response.data.reduce((acc, resume) => {
+          return acc + (resume.downloadCount || 0);
+        }, 0);
+        setTotalDownloads(total);
       } catch (error) {
         console.error("Failed to fetch resumes:", error);
       } finally {
@@ -40,10 +45,10 @@ const Dashboard = () => {
     };
 
   // ADD THIS BLOCK before your return()
-  const stats = [
+const stats = [
     { label: "Resumes Created", value: recentResumes.length, icon: <FileText className="w-6 h-6" />, color: "purple" },
-    { label: "Downloads", value: 45, icon: <Download className="w-6 h-6" />, color: "pink" },
-    { label: "ATS Score Avg", value: 91, icon: <Star className="w-6 h-6" />, color: "green", suffix: "%" },
+    { label: "Downloads", value: totalDownloads, icon: <Download className="w-6 h-6" />, color: "pink" },
+    { label: "Templates Available", value: 5, icon: <LayoutGrid className="w-6 h-6" />, color: "teal", suffix: "+" }
   ]
 
   const quickActions = [

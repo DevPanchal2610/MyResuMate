@@ -1,6 +1,7 @@
 package com.dev.MyResuMate.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -29,6 +30,7 @@ public class User {
     private boolean verified = false; // default false
 
     @Column(name = "is_premium", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    @JsonProperty("isPremium")
     private boolean isPremium = false;
 
     @Column(nullable = false)

@@ -84,7 +84,8 @@ public class ResumeService {
                         resume.getResumeTitle(),
                         resume.getTemplate().getTemplateName(),
                         resume.getTemplate().getTemplateKey(),
-                        resume.getLastEdited()
+                        resume.getLastEdited(),
+                        resume.getDownloadCount()
                 ))
                 .collect(Collectors.toList());
     }
@@ -103,5 +104,19 @@ public class ResumeService {
         }
 
         return resumeMapper.mapEntityToFullDTO(resume);
+    }
+
+    @Transactional
+    public void incrementDownloadCount(Long resumeId, User user) {
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new RuntimeException("Resume not found"));
+
+        // Security check: Make sure the user owns this resume
+        if (!resume.getUser().getId().equals(user.getId())) {
+            throw new SecurityException("User does not have permission to update this resume");
+        }
+
+        resume.setDownloadCount(resume.getDownloadCount() + 1);
+        resumeRepository.save(resume);
     }
 }

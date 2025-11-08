@@ -14,4 +14,6 @@ public class ResumeCardDTO {
     private String templateName;
     private String templateKey;
     private LocalDateTime lastEdited;
+    private int downloadCount;
+
 }

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f0f2f5; margin: 0; }
+        .header { background: #333; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; }
+        .content { padding: 30px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .logout-btn { color: white; text-decoration: none; background: #d9534f; padding: 8px 12px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Admin Dashboard</h1>
+    <div>
+        <span style="margin-right: 20px;">Welcome, <b th:text="${adminName}">Admin</b>!</span>
+        <a th:href="@{/admin/logout}" class="logout-btn">Sign Out</a>
+    </div>
+</div>
+
+<div class="content">
+    <div class="card">
+        <h2>Welcome to your Admin Panel</h2>
+        <p>This is where you will manage users, templates, and subscriptions.</p>
+    </div>
+</div>
+</body>
+</html>

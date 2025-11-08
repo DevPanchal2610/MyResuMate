@@ -36,7 +36,8 @@ const Templates = () => {
           ...template,
           id: template.templateKey, // Use templateKey for the link
           name: template.templateName,
-          tags: template.tags ? template.tags.split(',') : []
+          tags: template.tags ? template.tags.split(',') : [],
+          imageUrl: template.previewImageUrl  
         }));
         setTemplates(formattedTemplates);
       } catch (error) {

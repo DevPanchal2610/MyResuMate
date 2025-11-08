@@ -73,14 +73,29 @@ const Auth = () => {
 
 //       console.log("✅ Success:", response.data);
 
+      const data = response.data;
       if (activeTab === "signup") {
-        setMessage(response.data.message || "Signup successful! Please check your email to verify your account.");
+        setMessage(data.message || "Signup successful! Please check your email to verify your account.");
         setFormData({ name: "", email: "", password: "", confirmPassword: "" }); // reset form
         setIsLoading(false); // 4. SET LOADING FALSE ON SIGNUP SUCCESS
       } else {
-        localStorage.setItem("user", JSON.stringify(response.data));
-        navigate("/dashboard");
-        // No need to set loading false here, component will unmount
+       // ✅ === THIS IS THE NEW ADMIN LOGIN LOGIC ===
+        
+        if (data.user && data.user.role === "ADMIN") {
+            // 1. It's an admin. Save their data (optional, but good)
+            localStorage.setItem("user", JSON.stringify(data));
+
+            // 2. Do a FULL browser redirect to our backend "bridge" endpoint
+            // This will create the session cookie.
+            window.location.href = `http://localhost:8080/admin-auth?token=${data.token}`;
+            
+            // Note: We don't need to call setIsLoading(false) because the page is redirecting.
+        
+        } else {
+            // 3. It's a normal user. Log them into the React app.
+            localStorage.setItem("user", JSON.stringify(data));
+            navigate("/dashboard");
+        }
       }
 
     } catch (err) {

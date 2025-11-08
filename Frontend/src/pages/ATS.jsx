@@ -143,7 +143,7 @@ const ATS = () => {
                   </div>
                   <div className="mb-2 text-3xl font-bold gradient-text">
                     {/* The new AnimatedCounter now handles decimals gracefully */}
-                    <AnimatedCounter end={4.9} suffix="/5" decimals={1} />
+                    <AnimatedCounter end={3.9} suffix="/5" decimals={1} />
                   </div>
                   <p className="text-gray-600">User Satisfaction</p>
                 </div>

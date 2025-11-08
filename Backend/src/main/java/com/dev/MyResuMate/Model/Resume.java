@@ -28,6 +28,8 @@ public class Resume {
     private boolean isActive = true;
     private LocalDateTime lastEdited;
     private LocalDateTime createdAt;
+    @Column(name = "download_count", nullable = false)
+    private int downloadCount = 0;
 
     // ✅ This is the magic!
     // One resume has one personal info.

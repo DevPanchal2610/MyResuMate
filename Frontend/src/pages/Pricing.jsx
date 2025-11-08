@@ -419,6 +419,15 @@ const Pricing = () => {
                 // ✅ NEW: Check if this is the user's active plan
                 const isCurrentPlan = subscription?.planName === plan.name && subscription?.subscriptionStatus === "ACTIVE";
                 
+                let formattedRenewDate = '';
+                if (isCurrentPlan) {
+                  const date = new Date(subscription.endDate);
+                  const day = String(date.getDate()).padStart(2, '0');
+                  const month = String(date.getMonth() + 1).padStart(2, '0'); // getMonth() is zero-based
+                  const year = date.getFullYear();
+                  formattedRenewDate = `${day}/${month}/${year}`;
+                }
+
                 // ✅ NEW: Check if user is premium
                 const userIsPremium = subscription?.subscriptionStatus === "ACTIVE";
 
@@ -459,7 +468,7 @@ const Pricing = () => {
                         <div className="p-4 text-center bg-green-100 rounded-xl">
                           <p className="font-semibold text-green-800">Your plan is active!</p>
                           <p className="text-sm text-green-700">
-                            Renews on: {new Date(subscription.endDate).toLocaleDateString()}
+                            Renews on: {formattedRenewDate}
                           </p>
                         </div>
                       ) : (

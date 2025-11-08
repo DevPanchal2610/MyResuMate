@@ -272,7 +272,8 @@ const ResumePreview = React.forwardRef(({ resumeData, template = "modern" }, ref
     // =================================================================
     case "chronological":
       return (
-      
+        <>
+        <style>{printStyles}</style>
         <div ref={ref} className={`${pageStyle} p-8 font-serif overflow-hidden`}>
           <header className={`text-center mb-4 ${sectionStyle}`}>
             <h1 className="text-3xl font-bold text-gray-900 break-words">
@@ -395,6 +396,7 @@ const ResumePreview = React.forwardRef(({ resumeData, template = "modern" }, ref
             )}
           </div>
         </div>
+        </>
       )
       
     // =================================================================

@@ -1,14 +1,39 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { Send, Bot, User, Loader } from "lucide-react"
 import Sidebar from "../components/Sidebar.jsx"
 import MarkdownRenderer from "../components/MarkdownRenderer.jsx"
 
 const Chatbot = () => {
-  const [messages, setMessages] = useState([
-    { sender: "bot", text: "Hi 👋! Paste your resume content and tell me the job role. I'll help you optimize it for ATS and recruiters." }
-  ])
+  // ✅ Get the logged-in user's ID
+  const user = useMemo(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  }, []);
+
+  // ✅ Create a unique key for this user's chat
+  const chatHistoryKey = `chatHistory_${user?.user?.id || 'guest'}`;
+
+  const [messages, setMessages] = useState(() => {
+    // ✅ Check if history exists in localStorage
+    const storedMessages = localStorage.getItem(chatHistoryKey);
+    if (storedMessages) {
+      try {
+        const parsedMessages = JSON.parse(storedMessages);
+        // Don't return an empty array, always start with the welcome
+        if (parsedMessages.length > 0) {
+          return parsedMessages;
+        }
+      } catch (e) {
+        console.error("Could not parse chat history", e);
+      }
+    }
+    // ✅ If no history, return the default welcome message
+    return [
+      { sender: "bot", text: "Hi 👋! Paste your resume content and tell me the job role. I'll help you optimize it for ATS and recruiters." }
+    ];
+  });
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   // --- FIX 1: Remove the old ref for the bottom div ---
@@ -28,6 +53,13 @@ const Chatbot = () => {
       });
     }
   }, [messages]); // This still runs whenever a new message is added
+
+useEffect(() => {
+    // Don't save the initial "Hi" message if it's the only one
+    if (messages.length > 1) {
+      localStorage.setItem(chatHistoryKey, JSON.stringify(messages));
+    }
+  }, [messages, chatHistoryKey]);
 
   const handleSend = async () => {
     if (!input.trim()) return

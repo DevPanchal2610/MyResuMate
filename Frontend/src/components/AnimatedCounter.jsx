@@ -38,12 +38,12 @@ const AnimatedCounter = ({ end, duration = 2, suffix = "", className = "" }) => 
       duration: duration,
       ease: "power2.out",
       onUpdate: () => {
-        setCount(Math.floor(counter.value))
+        setCount(Math.round(counter.value))
       },
     })
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+      tl.kill();
     }
   }, [end, duration])
 

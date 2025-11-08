@@ -1,5 +1,6 @@
 package com.dev.MyResuMate.Model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -21,6 +22,8 @@ public class ResumeTemplate {
     private String description;
     private String previewImageUrl;
     private String category;
+
+    @JsonProperty("isPremium")
     private boolean isPremium;
 
     @Column(name = "is_active") // Explicitly map to the snake_case column

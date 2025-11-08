@@ -4,8 +4,11 @@ import com.dev.MyResuMate.DTO.ResumeCardDTO;
 import com.dev.MyResuMate.DTO.ResumeDataDTO;
 import com.dev.MyResuMate.DTO.ResumeFullDTO;
 import com.dev.MyResuMate.Model.Resume;
+import com.dev.MyResuMate.Model.User;
+import com.dev.MyResuMate.Repository.UserRepository;
 import com.dev.MyResuMate.Service.ResumeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +22,9 @@ public class ResumeController {
 
     @Autowired
     private ResumeService resumeService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping("/save")
     public ResponseEntity<?> saveResume(@RequestBody ResumeDataDTO resumeData, Principal principal) {
@@ -58,6 +64,22 @@ public class ResumeController {
             return ResponseEntity.ok(resumeDTO);
         } catch (RuntimeException e) {
             return ResponseEntity.status(403).body(e.getMessage()); // 403 Forbidden if not owner
+        }
+    }
+
+    @PostMapping("/{id}/increment-download")
+    public ResponseEntity<?> incrementDownload(@PathVariable Long id, Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        try {
+            resumeService.incrementDownloadCount(id, user);
+            return ResponseEntity.ok().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

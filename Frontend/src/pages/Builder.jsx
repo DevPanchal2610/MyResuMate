@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect,useRef } from "react"
-import { useSearchParams, useNavigate } from "react-router-dom"
+import { useSearchParams, useNavigate, Link } from "react-router-dom"
 import axios from "axios"
 // import jsPDF from "jspdf"
 // import { PDFDownloadLink } from "@react-pdf/renderer"
@@ -23,6 +23,7 @@ import {
   ChevronRight,
   Loader2,
   Check,
+  Crown
 } from "lucide-react"
 import Sidebar from "../components/Sidebar.jsx"
 import ResumePreview from "../components/ResumePreview.jsx"
@@ -651,6 +652,7 @@ const Builder = () => {
   // const [isDownloading, setIsDownloading] = useState(false);
 
   const [errors, setErrors] = useState(initialErrorState);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   const previewRef = useRef(null);
 
@@ -691,7 +693,25 @@ const Builder = () => {
 
         } else if (selectedTemplateKey) {
           // --- 2. CREATE NEW RESUME (from template page) ---
-          // Clear any old draft and start fresh with the new template
+
+          // ✅ ADDED: Security check for premium templates
+          try {
+            // We must fetch the template list to check its "isPremium" status
+            const templatesResponse = await axios.get("http://localhost:8080/api/templates");
+            const templateToLoad = templatesResponse.data.find(t => t.templateKey === selectedTemplateKey);
+
+            if (templateToLoad && templateToLoad.isPremium && (!storedUser || !storedUser.user.isPremium)) {
+              // User is trying to access a premium template without a premium account
+              setIsBlocked(true); // Set the blocked state
+              setIsLoading(false); // Stop loading
+              return; // Stop the function
+            }
+          } catch (err) {
+            console.error("Failed to fetch templates for validation", err);
+            // Fail safe: just let them in, but log the error
+          }
+
+          // If not blocked, proceed as normal
           const newDraft = { ...initialResumeState, templateKey: selectedTemplateKey };
           setResumeData(newDraft);
           sessionStorage.setItem("draftResume", JSON.stringify(newDraft));
@@ -718,7 +738,7 @@ const Builder = () => {
   // ✅ AUTO-SAVE DRAFT: Save to session storage on any change
   useEffect(() => {
     // Only save to session if we are NOT in the initial page load
-    if (!isLoading) {
+    if (!isLoading && !isBlocked) {
       sessionStorage.setItem("draftResume", JSON.stringify(resumeData));
     }
   }, [resumeData, isLoading]); // Dependency on resumeData triggers this
@@ -906,17 +926,74 @@ const Builder = () => {
   };
 
   // ✅ UPDATED: DOWNLOAD PDF FUNCTION
-  const handleDownload = useReactToPrint({
-    contentRef: previewRef,
-    documentTitle: resumeData.resumeTitle || "MyResuMate-Resume",
-    onAfterPrint: () => console.log('Print success'),
-    onPrintError: (error) => console.error('Print error:', error),
-  });
+// ✅ 1. RENAME your print hook
+  const handlePrint = useReactToPrint({
+  	 contentRef: previewRef,
+  	 documentTitle: resumeData.resumeTitle || "MyResuMate-Resume",
+  	 onAfterPrint: () => console.log('Print success'),
+  	 onPrintError: (error) => console.error('Print error:', error),
+  });
+
+  // ✅ 2. CREATE the new handleDownload wrapper function
+  const handleDownload = async () => {
+    // Get the ID from the resumeData state
+    const resumeId = resumeData.resumeId; 
+
+    if (!resumeId) {
+      // No ID (new, unsaved resume), just print
+      handlePrint();
+      return;
+    }
+
+    try {
+      // 3. Get token
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user || !user.token) {
+        throw new Error("User not authenticated");
+      }
+
+      // 4. Call the increment endpoint
+      await axios.post(
+        `http://localhost:8080/api/resumes/${resumeId}/increment-download`,
+        {}, // Empty body
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+
+    } catch (error) {
+      console.error("Failed to increment download count:", error);
+      // Don't block the download; just log the error and continue.
+    } finally {
+      // 5. Trigger the actual download (print)
+      handlePrint();
+    }
+  };
   // ✅ LOADING SPINNER: Show a spinner while fetching data
   if (isLoading) {
     return (
       <div className="min-h-screen pt-16 bg-gradient-to-br from-purple-50 via-pink-50 to-teal-50 flex items-center justify-center">
         <Loader2 className="w-16 h-16 text-purple-600 animate-spin" />
+      </div>
+    );
+  }
+  // ✅ NEW: PREMIUM BLOCKED RENDER
+  if (isBlocked) {
+    return (
+      <div className="min-h-screen pt-16 bg-gradient-to-br from-purple-50 via-pink-50 to-teal-50 flex">
+        <div className="sticky w-64 h-screen overflow-y-auto bg-white shadow-lg top-16">
+          <Sidebar className="sticky min-h-screen top-16" />
+        </div>
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="p-12 bg-white shadow-lg rounded-2xl text-center max-w-lg">
+            <Crown className="w-16 h-16 mx-auto text-purple-600 mb-6" />
+            <h1 className="text-3xl font-bold gradient-text mb-4">Premium Template Locked</h1>
+            <p className="text-lg text-gray-600 mb-8">
+              This is a premium template. To use it, please upgrade your account.
+            </p>
+            <Link to="/pricing" className="btn-primary">
+              View Pricing Plans
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
