@@ -8,4 +8,5 @@ import java.util.List;
 public interface SubscriptionPlanRepository extends JpaRepository<SubscriptionPlan, Long> {
     // Find plans by keys so we can ignore "PROFESSIONAL"
     List<SubscriptionPlan> findByPlanKeyIn(List<String> planKeys);
+    List<SubscriptionPlan> findAllByOrderByIdAsc();
 }

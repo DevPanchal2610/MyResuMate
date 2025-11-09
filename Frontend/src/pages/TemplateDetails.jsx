@@ -25,13 +25,18 @@ const TemplateDetails = () => {
         const foundTemplate = response.data.find(t => t.templateKey === templateId);
 
         if (foundTemplate) {
+          // ✅ Prepend the backend server address to the image path
+          const fullImageUrl = foundTemplate.previewImageUrl 
+                               ? `http://localhost:8080${foundTemplate.previewImageUrl}` 
+                               : null;
+
           // Format it just like on the main page
           setTemplate({
             ...foundTemplate,
             id: foundTemplate.templateKey,
             name: foundTemplate.templateName,
             tags: foundTemplate.tags ? foundTemplate.tags.split(',') : [],
-            imageUrl: foundTemplate.previewImageUrl
+            imageUrl: fullImageUrl // ✅ Set the full URL
           });
         } else {
           // Handle template not found

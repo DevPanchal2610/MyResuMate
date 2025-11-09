@@ -83,7 +83,6 @@ const Auth = () => {
         
         if (data.user && data.user.role === "ADMIN") {
             // 1. It's an admin. Save their data (optional, but good)
-            localStorage.setItem("user", JSON.stringify(data));
 
             // 2. Do a FULL browser redirect to our backend "bridge" endpoint
             // This will create the session cookie.

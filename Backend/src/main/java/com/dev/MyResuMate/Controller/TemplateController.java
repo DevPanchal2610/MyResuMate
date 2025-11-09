@@ -22,7 +22,7 @@ public class TemplateController {
         // Find all active templates
         List<ResumeTemplate> templates = resumeTemplateRepository.findAll()
                 .stream()
-                .filter(template -> template.isActive())
+                .filter(ResumeTemplate::isActive)
                 .toList();
         return ResponseEntity.ok(templates);
     }

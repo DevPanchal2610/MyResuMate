@@ -47,13 +47,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Your existing public API paths
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/templates/**").permitAll()
-                        .requestMatchers("/api/chat/**").permitAll()
-                        .requestMatchers("/api/ats/**").permitAll()
-                        .requestMatchers("/api/contact/**").permitAll()
-                        .requestMatchers("/api/payments/**").permitAll()
-                        .requestMatchers("/api/plans/**").permitAll()
-                        .requestMatchers("/api/subscriptions/**").permitAll()
+                        .requestMatchers("/api/contact/submit").permitAll()
+                        .requestMatchers("/api/plans").permitAll()
+                        .requestMatchers("/api/templates").permitAll()
                         // All other /api paths are protected
                         .anyRequest().authenticated()
                 )
@@ -70,9 +66,10 @@ public class SecurityConfig {
     @Order(2) // This chain runs second
     public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/admin/**", "/admin-auth") // Apply this chain to /admin/** and our bridge
+                .securityMatcher("/admin/**", "/admin-auth", "/uploads/**") // Apply this chain to /admin/** and our bridge
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin-auth").permitAll() // The bridge endpoint must be public
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ADMIN") // Only allow users with "ADMIN" authority
                         .anyRequest().authenticated()
                 )
@@ -85,7 +82,7 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/admin/logout")
-                        .logoutSuccessUrl("/?logout")
+                        .logoutSuccessUrl("http://localhost:3000/admin-logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                 );

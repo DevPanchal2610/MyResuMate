@@ -3,6 +3,9 @@ package com.dev.MyResuMate.Model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,22 +26,24 @@ public class ResumeTemplate {
     private String previewImageUrl;
     private String category;
 
-    @JsonProperty("isPremium")
-    private boolean isPremium;
+    @Column(name = "is_premium") // Keep DB column name
+    @JsonProperty("isPremium")   // Keep JSON name for React
+    private boolean premium; // Renamed from isPremium
 
-    @Column(name = "is_active") // Explicitly map to the snake_case column
-    private boolean isActive;
+    @Column(name = "is_active")
+    @JsonProperty("isActive")    // Keep JSON name for React
+    private boolean active;
 
     private double rating;
     private int downloadCount;
     private String tags;
 
-    @Column(columnDefinition = "TEXT")
-    private String htmlTemplate;
-
-    @Column(columnDefinition = "TEXT")
-    private String cssStyles;
-
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
 }

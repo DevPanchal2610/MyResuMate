@@ -21,6 +21,7 @@ import VerifyEmail from "./pages/VerifyEmail.jsx";
 import MyResumes from "./pages/MyResumes.jsx";
 import HomeWithIntro from "./pages/HomeWithIntro.jsx"
 import TemplateDetails from "./pages/TemplateDetails";
+import AdminLogout from './pages/AdminLogout';
 
 // ✅ Protected Route Component
 const PrivateRoute = ({ children }) => {
@@ -40,6 +41,7 @@ function App() {
               <Route path="/" element={<HomeWithIntro />} />
               <Route path="/about" element={<About />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/admin-logout" element={<AdminLogout />} />
               <Route path="/reset-password" element={<ResetPassword />} /> 
                <Route
                 path="/dashboard"

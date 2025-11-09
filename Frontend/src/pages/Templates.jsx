@@ -32,13 +32,20 @@ const Templates = () => {
         const response = await axios.get("http://localhost:8080/api/templates");
         // Map backend 'templateKey' to frontend 'id' for the TemplateCard
         // And map 'tags' from comma-separated string to an array
-        const formattedTemplates = response.data.map(template => ({
-          ...template,
-          id: template.templateKey, // Use templateKey for the link
-          name: template.templateName,
-          tags: template.tags ? template.tags.split(',') : [],
-          imageUrl: template.previewImageUrl  
-        }));
+        const formattedTemplates = response.data.map(template => {
+          // ✅ Prepend the backend server address to the image path
+          const fullImageUrl = template.previewImageUrl 
+                               ? `http://localhost:8080${template.previewImageUrl}` 
+                               : null; // Or a default placeholder
+
+          return {
+            ...template,
+            id: template.templateKey,
+            name: template.templateName,
+            tags: template.tags ? template.tags.split(',') : [],
+            imageUrl: fullImageUrl // ✅ Use the new, full URL
+          };
+        });
         setTemplates(formattedTemplates);
       } catch (error) {
         console.error("Error fetching templates:", error);

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/admin-layout :: layout(pageContent = ~{::main})}">
+
+<main class="p-8">
+  <h1 class="text-3xl font-bold text-gray-900 mb-6" th:text="${template.id == null ? 'Add New Template' : 'Edit Template'}">Add New Template</h1>
+
+  <div class="bg-white shadow-lg rounded-2xl p-8">
+    <form th:action="@{/admin/templates/save}" th:object="${template}" method="post"
+          enctype="multipart/form-data" class="space-y-6">
+
+      <input type="hidden" th:field="*{id}" />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="templateName" class="block text-sm font-medium text-gray-700">Template Name</label>
+          <input type="text" id="templateName" th:field="*{templateName}"
+                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                 placeholder="e.g., Modern Professional" required />
+        </div>
+
+        <div>
+          <label for="templateKey" class="block text-sm font-medium text-gray-700">Template Key</label>
+          <input type="text" id="templateKey" th:field="*{templateKey}"
+                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                 placeholder="e.g., modern (no spaces, all lowercase)" required />
+        </div>
+      </div>
+
+      <div>
+        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+        <textarea id="description" th:field="*{description}" rows="3"
+                  class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="A short description of the template..."></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="imageFile" class="block text-sm font-medium text-gray-700">Preview Image</label>
+
+          <div th:if="*{previewImageUrl != null AND previewImageUrl != ''}" class="my-2">
+            <img th:src="@{*{previewImageUrl}}" alt="Current preview" class="w-32 h-auto rounded-md shadow-sm"/>
+            <span class="text-xs text-gray-500" th:text="*{previewImageUrl}">/current-image.png</span>
+          </div>
+
+          <input type="file" id="imageFile" name="imageFile"
+                 class="mt-1 block w-full text-sm text-gray-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-full file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-purple-50 file:text-purple-700
+                  hover:file:bg-purple-100"/>
+
+          <input type="hidden" th:field="*{previewImageUrl}" />
+        </div>
+
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+          <input type="text" id="category" th:field="*{category}"
+                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                 placeholder="e.g., tech, business, all" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="rating" class="block text-sm font-medium text-gray-700">Rating (e.g., 4.8)</label>
+          <input type="number" step="0.1" id="rating" th:field="*{rating}"
+                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                 placeholder="4.8" />
+        </div>
+
+        <div>
+          <label for="downloadCount" class="block text-sm font-medium text-gray-700">Download Count</label>
+          <input type="number" id="downloadCount" th:field="*{downloadCount}"
+                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                 placeholder="15000" />
+        </div>
+      </div>
+
+      <div>
+        <label for="tags" class="block text-sm font-medium text-gray-700">Tags (comma-separated)</label>
+        <input type="text" id="tags" th:field="*{tags}"
+               class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-purple-500 focus:border-purple-500"
+               placeholder="e.g., Modern,ATS,Clean" />
+      </div>
+
+      <div class="flex items-center gap-8 pt-4">
+        <div class="flex items-center gap-2">
+          <input type="hidden" name="_premium" value="on" />
+          <input type="checkbox" id="premium"
+                 th:field="*{premium}" class="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+          <label for="premium" class="text-sm font-medium text-gray-700">Premium Template</label>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="hidden" name="_active" value="on" />
+          <input type="checkbox" id="active"
+                 th:field="*{active}" class="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+          <label for="active" class="text-sm font-medium text-gray-700">Is Active</label>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+        <a th:href="@{/admin/templates}"
+           class="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+          Cancel
+        </a>
+        <button type="submit"
+                class="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg shadow-sm hover:bg-purple-700">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          Save Template
+        </button>
+      </div>
+
+    </form>
+  </div>
+</main>
+</html>

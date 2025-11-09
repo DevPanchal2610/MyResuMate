@@ -48,7 +48,7 @@ const Dashboard = () => {
 const stats = [
     { label: "Resumes Created", value: recentResumes.length, icon: <FileText className="w-6 h-6" />, color: "purple" },
     { label: "Downloads", value: totalDownloads, icon: <Download className="w-6 h-6" />, color: "pink" },
-    { label: "Templates Available", value: 5, icon: <LayoutGrid className="w-6 h-6" />, color: "teal", suffix: "+" }
+    { label: "Templates Available", value: 4, icon: <LayoutGrid className="w-6 h-6" />, color: "teal", suffix: "+" }
   ]
 
   const quickActions = [

@@ -1,0 +1,20 @@
+package com.dev.MyResuMate.Service;
+
+import com.dev.MyResuMate.Model.User;
+import com.dev.MyResuMate.Repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class AdminUserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public List<User> getAllUsers() {
+        // We use the new method to ensure a consistent order
+        return userRepository.findByRoleNotOrderByIdAsc("ADMIN");
+    }
+}

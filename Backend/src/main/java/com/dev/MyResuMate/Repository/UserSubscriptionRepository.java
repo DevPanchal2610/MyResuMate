@@ -3,6 +3,8 @@ package com.dev.MyResuMate.Repository;
 import com.dev.MyResuMate.Model.UserSubscription;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional; // Import this
 
 public interface UserSubscriptionRepository extends JpaRepository<UserSubscription,Long> {
@@ -11,4 +13,7 @@ public interface UserSubscriptionRepository extends JpaRepository<UserSubscripti
     // The service logic uses this to find a user's existing subscription
     // so it can be updated (instead of creating a new one).
     Optional<UserSubscription> findByUserId(Long userId);
+    long countBySubscriptionStatus(String status);
+    List<UserSubscription> findAllByOrderByIdAsc();
+    long countBySubscriptionStatusAndStartDateBetween(String status, LocalDateTime startDate, LocalDateTime endDate);
 }

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header th:fragment="header" class="sticky top-0 z-10 flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm shadow-sm h-16">
+  <h2 class="text-xl font-semibold text-gray-800" th:text="${pageTitle ?: 'Dashboard'}">
+    Dashboard
+  </h2>
+  <div class="text-sm text-gray-600">
+    Welcome, <span class="font-medium gradient-text">Admin</span>
+  </div>
+</header>
+
+</body>
+</html>

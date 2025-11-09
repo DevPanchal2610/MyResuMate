@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<nav th:fragment="sidebar(pageUri)" class="sticky top-0 w-64 h-full overflow-y-auto bg-white shadow-lg">
+    <div class="flex flex-col h-full">
+        <div class="flex items-center justify-center p-4 shadow-sm h-16">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600">
+                <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+            </div>
+            <span class="ml-2 text-xl font-bold gradient-text">MyResuMate</span>
+        </div>
+
+        <nav class="flex-1 p-4 space-y-2">
+            <a th:href="@{/admin/dashboard}"
+               th:classappend="${pageUri.equals('/admin/dashboard')}
+                                ? 'text-white bg-gradient-to-r from-purple-600 to-pink-600'
+                                : 'text-gray-600 hover:bg-gray-100'"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/users}"
+               th:classappend="${pageUri.startsWith('/admin/users')}
+                                ? 'text-white bg-gradient-to-r from-purple-600 to-pink-600'
+                                : 'text-gray-600 hover:bg-gray-100'"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium">
+                <i data-lucide="users"></i>
+                <span>User Management</span>
+            </a>
+            <a th:href="@{/admin/templates}"
+               th:classappend="${pageUri.startsWith('/admin/templates')}
+                    ? 'text-white bg-gradient-to-r from-purple-600 to-pink-600'
+                    : 'text-gray-600 hover:bg-gray-100'"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium">
+                <i data-lucide="layout-grid"></i>
+                <span>Templates</span>
+            </a>
+            <a th:href="@{/admin/subscriptions}"
+               th:classappend="${pageUri.startsWith('/admin/subscriptions') or pageUri.startsWith('/admin/plans')}
+                    ? 'text-white bg-gradient-to-r from-purple-600 to-pink-600'
+                    : 'text-gray-600 hover:bg-gray-100'"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium">
+                <i data-lucide="credit-card"></i>
+                <span>Subscriptions</span>
+            </a>
+            <a th:href="@{/admin/contact}"
+               th:classappend="${pageUri.startsWith('/admin/contact')}
+                    ? 'text-white bg-gradient-to-r from-purple-600 to-pink-600'
+                    : 'text-gray-600 hover:bg-gray-100'"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium">
+                <i data-lucide="mail"></i>
+                <span>Contact Messages</span>
+            </a>
+
+        </nav>
+
+        <div class="p-4 border-t border-gray-200">
+            <form th:action="@{/admin/logout}" method="post" class="w-full">
+                <button type="submit" class="flex items-center gap-3 px-4 py-3 text-red-500 rounded-lg hover:bg-red-50 font-medium w-full">
+                    <i data-lucide="log-out"></i>
+                    <span>Sign Out</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+</body>
+</html>

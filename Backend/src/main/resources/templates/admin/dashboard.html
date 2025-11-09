@@ -1,31 +1,197 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f0f2f5; margin: 0; }
-        .header { background: #333; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { margin: 0; }
-        .content { padding: 30px; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .logout-btn { color: white; text-decoration: none; background: #d9534f; padding: 8px 12px; border-radius: 4px; }
-    </style>
-</head>
-<body>
-<div class="header">
-    <h1>Admin Dashboard</h1>
-    <div>
-        <span style="margin-right: 20px;">Welcome, <b th:text="${adminName}">Admin</b>!</span>
-        <a th:href="@{/admin/logout}" class="logout-btn">Sign Out</a>
-    </div>
-</div>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/admin-layout :: layout(pageContent = ~{::main})}">
 
-<div class="content">
-    <div class="card">
-        <h2>Welcome to your Admin Panel</h2>
-        <p>This is where you will manage users, templates, and subscriptions.</p>
+<main class="p-8">
+
+    <div class="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p class="text-gray-600" th:text="|Showing stats for the ${dateRangeLabel}|">Showing stats for the Last 7 Days</p>
+        </div>
+
+        <form th:action="@{/admin/dashboard}" method="get" class="flex items-center gap-2">
+            <label for="range" class="text-sm font-medium text-gray-700">Select Range:</label>
+            <select id="range" name="range"
+                    class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                    onchange="this.form.submit()">
+                <option value="7d" th:selected="${selectedRange == '7d'}">Last 7 Days</option>
+                <option value="30d" th:selected="${selectedRange == '30d'}">Last 30 Days</option>
+                <option value="90d" th:selected="${selectedRange == '90d'}">Last 90 Days</option>
+            </select>
+        </form>
+        <a th:href="@{/admin/dashboard/download-pdf(range=${selectedRange})}"
+           class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg shadow-sm hover:bg-purple-700">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            Download Report
+        </a>
     </div>
-</div>
-</body>
+
+    <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
+
+        <div class="p-6 bg-white shadow-lg rounded-2xl flex items-center gap-4 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+            <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center bg-green-100 text-green-600">
+                <i data-lucide="dollar-sign"></i>
+            </div>
+            <div>
+                <div class="text-sm text-gray-600" th:text="|Revenue (${dateRangeLabel})|">Revenue (Last 7 Days)</div>
+                <div class="text-2xl font-bold text-gray-900">
+                    ₹<span th:text="${#numbers.formatDecimal(totalRevenue, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 bg-white shadow-lg rounded-2xl flex items-center gap-4 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+            <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center bg-purple-100 text-purple-600">
+                <i data-lucide="users"></i>
+            </div>
+            <div>
+                <div class="text-sm text-gray-600" th:text="|New Users (${dateRangeLabel})|">New Users (Last 7 Days)</div>
+                <div class="text-2xl font-bold text-gray-900" th:text="${newUsers}">0</div>
+            </div>
+        </div>
+
+        <div class="p-6 bg-white shadow-lg rounded-2xl flex items-center gap-4 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+            <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center bg-pink-100 text-pink-600">
+                <i data-lucide="crown"></i>
+            </div>
+            <div>
+                <div class="text-sm text-gray-600" th:text="|New Subs (${dateRangeLabel})|">New Subs (Last 7 Days)</div>
+                <div class="text-2xl font-bold text-gray-900" th:text="${newSubscriptions}">0</div>
+            </div>
+        </div>
+
+        <div class="p-6 bg-white shadow-lg rounded-2xl flex items-center gap-4 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+            <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center bg-teal-100 text-teal-600">
+                <i data-lucide="file-text"></i>
+            </div>
+            <div>
+                <div class="text-sm text-gray-600">Total Resumes (All-Time)</div>
+                <div class="text-2xl font-bold text-gray-900" th:text="${totalResumesAllTime}">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-6 mb-8 bg-white shadow-lg rounded-2xl">
+        <h3 class="text-xl font-bold text-gray-900 mb-4" th:text="|Revenue Breakdown (${dateRangeLabel})|">Revenue Breakdown</h3>
+        <div class="h-80">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+
+        <div class="lg:col-span-2 bg-white p-6 shadow-lg rounded-2xl">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Recent Transactions (All-Time)</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="text-sm text-gray-600 border-b">
+                    <tr>
+                        <th class="py-2">User</th>
+                        <th class="py-2">Amount</th>
+                        <th class="py-2">Date</th>
+                        <th class="py-2">Payment ID</th>
+                    </tr>
+                    </thead>
+                    <tbody class="text-gray-800">
+                    <tr th:each="tx : ${recentTransactions}" class="border-b border-gray-100">
+                        <td class="py-4" th:text="${tx.user.name}">Dev Panchal</td>
+                        <td class="py-4 font-medium">₹<span th:text="${tx.amount}">190.00</span></td>
+                        <td class="py-4 text-sm" th:text="${#temporals.format(tx.paymentDate, 'MMM dd, yyyy')}">Nov 07, 2025</td>
+                        <td class="py-4 text-xs font-mono" th:text="${tx.razorpayPaymentId}">pay_Rcncqi9...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1 bg-white p-6 shadow-lg rounded-2xl">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">New Users (All-Time)</h3>
+            <div class="space-y-4">
+                <div th:each="user : ${recentUsers}" class="flex items-center gap-3">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">
+                        <span th:text="${#strings.substring(user.name, 0, 1)}">D</span>
+                    </div>
+                    <div class="flex-1 truncate">
+                        <p class="font-medium text-gray-900 truncate" th:text="${user.name}">Dev Panchal</p>
+                        <p class="text-sm text-gray-500 truncate" th:text="${user.email}">devpanchal2610@gmail.com</p>
+                    </div>
+                    <span th:if="${user.isPremium}" class="text-xs font-medium text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">
+                        Premium
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        // 1. Get the dynamic data from Thymeleaf
+        const chartLabels = /*[[${chartLabels}]]*/ [];
+        const chartData = /*[[${chartData}]]*/ [];
+
+        // 2. Get the canvas element
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+
+        // 3. Create the gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(168, 85, 247, 0.4)'); // purple-500
+        gradient.addColorStop(1, 'rgba(236, 72, 153, 0.0)'); // pink-500
+
+        // 4. Create the chart
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: chartData,
+                    borderColor: 'rgb(168, 85, 247)',
+                    backgroundColor: gradient,
+                    fill: 'origin',
+                    tension: 0.3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: 'rgb(168, 85, 247)',
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: 'rgb(168, 85, 247)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) { return '₹' + value.toLocaleString(); }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: '#333',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        callbacks: {
+                            label: function(context) {
+                                return 'Revenue: ₹' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        /*]]>*/
+    </script>
+</main>
 </html>

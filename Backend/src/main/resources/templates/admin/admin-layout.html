@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(pageContent)">
+<head>
+  <meta charset="UTF-8">
+  <title>MyResuMate Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide/dist/umd/lucide.min.js"></script>
+  <style>
+    .gradient-text { background: linear-gradient(to right, #8A2BE2, #EC4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #c5c5c5; border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-pink-50 to-teal-50">
+<div class="flex h-screen">
+
+  <div th:replace="~{admin/fragments/sidebar :: sidebar(pageUri=${pageUri})}"></div>
+
+  <div class="flex-1 h-screen overflow-y-auto">
+
+    <div th:replace="~{admin/fragments/header :: header}"></div>
+
+    <main class="p-8" th:replace="${pageContent}">
+    </main>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    lucide.createIcons();
+  });
+</script>
+</body>
+</html>

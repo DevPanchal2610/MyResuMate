@@ -5,7 +5,7 @@ import Home from "./Home.jsx"
 
 const HomeWithIntro = () => {
   const [showVideo, setShowVideo] = useState(false)
-  const [isMuted, setIsMuted] = useState(false)
+  const [isMuted, setIsMuted] = useState(true)
   const videoRef = useRef(null)
 
   useEffect(() => {
@@ -32,6 +32,7 @@ const HomeWithIntro = () => {
             autoPlay
             muted={isMuted}
             onEnded={handleVideoEnd}
+            playsInline
           />
 
           {/* Sound toggle button */}

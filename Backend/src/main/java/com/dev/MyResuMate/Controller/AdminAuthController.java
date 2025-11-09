@@ -56,6 +56,6 @@ public class AdminAuthController {
         }
 
         // If anything fails (bad token, not an admin), redirect to home with an error
-        return new RedirectView("/?error=auth_failed");
+        return new RedirectView("http://localhost:3000/auth?error=admin_login_failed");
     }
 }
