@@ -14,4 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // This will find all users WHERE the role is NOT 'ADMIN', ordered by ID
     List<User> findByRoleNotOrderByIdAsc(String role);
     long countByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+    List<User> findTop5ByRoleNotOrderByCreatedAtDesc(String role);
+    long countByRoleNot(String role);
+    long countByRoleNotAndCreatedAtBetween(String role, LocalDateTime startDate, LocalDateTime endDate);
+
 }

@@ -119,4 +119,23 @@ public class ResumeService {
         resume.setDownloadCount(resume.getDownloadCount() + 1);
         resumeRepository.save(resume);
     }
+
+    @Transactional
+    public void deleteResume(Long resumeId, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new RuntimeException("Resume not found"));
+
+        // Security check: ensure user owns the resume
+        if (!resume.getUser().getId().equals(user.getId())) {
+            throw new SecurityException("Unauthorized: You cannot delete this resume");
+        }
+
+        // Thanks to CascadeType.ALL and orphanRemoval = true,
+        // all related child entities will be deleted automatically
+        resumeRepository.delete(resume);
+    }
+
 }

@@ -103,37 +103,53 @@ const handleLogout = () => {
         </ul>
       </nav>
 
-      {/* User Profile */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="flex items-center p-3 space-x-3 transition-colors cursor-pointer rounded-xl hover:bg-gray-100">
-          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-            <User className="w-5 h-5 text-gray-600" />
-          </div>
+     {/* User Profile */}
+      <div className="p-4 border-t border-gray-200">
+        <div 
+          // ✅ 1. Conditional hover effect
+          className={`flex items-center p-3 space-x-3 transition-colors cursor-pointer rounded-xl ${
+            user?.user?.isPremium ? "hover:bg-purple-50" : "hover:bg-gray-100"
+          }`}
+        >
+          {/* ✅ 2. Conditional icon background */}
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-200`}>
+            {/* ✅ 3. Conditional icon color */}
+            <User className={`w-5 h-5 text-gray-600`} />
+          </div>
+          
           {user?.user ? (
-  // ✅ If user is logged in
-  <>
-    {!collapsed && (
-      <div className="flex-1">
-        <div className="text-sm font-medium text-gray-900">
-          {user?.user?.name || "Guest"}
-        </div>
-        <div className="text-xs text-gray-500">
-          {user?.user?.isPremium ? "Premium User" : "Normal User"}
-        </div>
-      </div>
-    )}
-  </>
-) : (
-  // 🚫 If user is NOT logged in
-  !collapsed && (
-    <div className="flex-1">
-      <div className="text-sm font-medium text-gray-900">Guest</div>
-      <div className="text-xs text-gray-500">Not Signed In</div>
-    </div>
-  )
-)}
+            // ✅ If user is logged in
+            <>
+              {!collapsed && (
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900">
+                    {user?.user?.name || "Guest"}
+                  </div>
 
-</div>
+                  {/* ✅ 4. Conditional Premium/Normal badge */}
+                  {user?.user?.isPremium ? (
+                    <span className="px-2 py-0.5 inline-block text-xs font-bold text-white bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
+                      Premium User
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 inline-block text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                      Normal User
+                    </span>
+                  )}
+
+                </div>
+              )}
+            </>
+          ) : (
+            // 🚫 If user is NOT logged in
+            !collapsed && (
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-900">Guest</div>
+                <div className="text-xs text-gray-500">Not Signed In</div>
+              </div>
+            )
+          )}
+        </div>
 
 {/* Auth Button Section */}
 {user?.user ? (

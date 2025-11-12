@@ -122,25 +122,25 @@ const Home = () => {
 
   const testimonials = [
     {
-      name: "Sarah Johnson",
+      name: "Dev Panchal",
       role: "Software Engineer",
       company: "Google",
-      content: "MyResuMate helped me land my dream job at Google! The ATS optimization feature was a game-changer.",
-      avatar: "/professional-woman-smiling.png",
+      content: "MyResuMate helped me land my dream job at Google! The ATS feature was a game-changer.",
+      avatar: "/Dev image.jpg",
     },
     {
-      name: "Michael Chen",
+      name: "Vyom Chauhan",
       role: "Marketing Manager",
       company: "Meta",
       content: "The templates are stunning and the AI suggestions helped me highlight my achievements perfectly.",
-      avatar: "/professional-man-smiling.png",
+      avatar: "/vyom.jpg",
     },
     {
-      name: "Emily Rodriguez",
+      name: "Juhil Mistry",
       role: "Data Scientist",
       company: "Netflix",
       content: "I got 3x more interview calls after using MyResuMate. The difference was incredible!",
-      avatar: "/professional-woman-glasses.png",
+      avatar: "/Juhil.JPG",
     },
   ]
 

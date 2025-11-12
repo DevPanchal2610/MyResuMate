@@ -13,7 +13,7 @@ const TemplateDetails = () => {
   
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
-  const isPremiumUser = user?.isPremium || false;
+  const isPremiumUser = user?.user?.isPremium || false;
 
   useEffect(() => {
     const fetchTemplate = async () => {

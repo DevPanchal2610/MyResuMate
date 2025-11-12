@@ -21,6 +21,10 @@ const ResumePreview = React.forwardRef(({ resumeData, template = "modern" }, ref
     @page {
       size: A4;
       margin: 0;
+      margin-top: 10mm;
+      margin-bottom: 5mm;
+      margin-left: 5mm;
+      margin-right: 5mm;
     }
     
     * {
@@ -63,8 +67,8 @@ const ResumePreview = React.forwardRef(({ resumeData, template = "modern" }, ref
 
   // ✅ 2. Define the A4 page style
   const pageStyle = `
-  w-[210mm] min-h-[297mm] bg-white shadow-lg mx-auto p-5
-  print:w-full print:min-h-[297mm] print:shadow-none print:m-0 print:p-5
+  w-[210mm] min-h-[280mm] bg-white shadow-lg mx-auto p-5
+  print:w-full print:min-h-[280mm] print:shadow-none print:m-0 print:p-0
 `;
 
   // ✅ 3. Define the style for sections to prevent breaking
@@ -82,6 +86,10 @@ const ResumePreview = React.forwardRef(({ resumeData, template = "modern" }, ref
           @page {
             size: A4;
             margin: 0;
+            margin-top: 5mm;
+            margin-bottom: 5mm;
+            margin-left: 5mm;
+            margin-right: 5mm;
           }
           
           * {

@@ -19,6 +19,7 @@ const ATS = () => {
   const [uploadedFile, setUploadedFile] = useState(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState(null)
+  const [analysisError, setAnalysisError] = useState(null)
   const fileInputRef = useRef(null)
 
   const getScoreGrade = (score) => {
@@ -74,9 +75,23 @@ const ATS = () => {
         });
 
       } catch (error) {
-        console.error("Error analyzing resume:", error)
-        alert("Something went wrong while analyzing the resume. Please check the console for details.")
-      } finally {
+        console.error("Error analyzing resume:", error);
+
+        // ✅ Get the specific error message from the backend
+        let errorMessage = "Something went wrong. Please try again.";
+        if (error.message.includes("Failed to analyze resume:")) {
+            try {
+                // Try to parse the JSON error from the backend
+                const errorJson = JSON.parse(error.message.replace("Failed to analyze resume: ", ""));
+                errorMessage = errorJson.error || errorMessage;
+            } catch (parseError) {
+                // Fallback if the error isn't JSON
+                errorMessage = error.message;
+            }
+        }
+
+        setAnalysisError(errorMessage); // Show the specific error
+      } finally {
         setIsAnalyzing(false)
       }
     }
@@ -96,6 +111,7 @@ const ATS = () => {
     setUploadedFile(null)
     setAnalysisResult(null)
     setIsAnalyzing(false)
+    setAnalysisError(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -149,142 +165,165 @@ const ATS = () => {
                 </div>
             </div>
 
-            {!analysisResult && !isAnalyzing && (
+{/* ✅ START: UPDATED CONDITIONAL RENDERING */}
+
+          {isAnalyzing ? (
+            
+            // --- 1. ANALYZING ---
+            <div className="p-8 text-center bg-white shadow-lg rounded-2xl">
+              <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse">
+                <FileText className="w-12 h-12 text-white" />
+              </div>
+              <h3 className="mb-4 text-2xl font-bold text-gray-900">Analyzing Your Resume</h3>
+              <p className="mb-6 text-gray-600">
+                Our AI is scanning your resume for content, structure, and ATS compatibility...
+              </p>
+                <div className="w-full max-w-md h-2 mx-auto overflow-hidden bg-gray-200 rounded-full">
+                  <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse"></div>
+              </div>
+            </div>
+
+          ) : analysisError ? (
+
+            // --- 2. ERROR MESSAGE ---
+            <div className="p-8 text-center bg-white shadow-lg rounded-2xl animate-fade-in">
+              <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-r from-red-100 to-pink-100">
+                <XCircle className="w-12 h-12 text-red-600" />
+              </div>
+              <h3 className="mb-4 text-2xl font-bold text-red-600">Analysis Failed</h3>
+              <p className="max-w-md mx-auto mb-6 text-gray-600">
+                {analysisError}
+              </p>
+              <button onClick={resetAnalysis} className="btn-secondary">
+                Try Another File
+              </button>
+            </div>
+
+          ) : analysisResult ? (
+
+            // --- 3. RESULTS ---
+            <div className="space-y-8 animate-fade-in">
+              {/* This is your existing results block, no changes needed inside it */}
               <div className="p-8 bg-white shadow-lg rounded-2xl">
-                <div
-                  className="p-12 text-center transition-colors border-2 border-gray-300 border-dashed cursor-pointer rounded-2xl hover:border-purple-400"
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-100 to-pink-100">
-                    <Upload className="w-12 h-12 text-purple-600" />
-                  </div>
-                  <h3 className="mb-4 text-2xl font-bold text-gray-900">Upload Your Resume</h3>
-                  <p className="max-w-md mx-auto mb-6 text-gray-600">
-                    Drag and drop your resume here, or click to browse. We support PDF format.
-                  </p>
-                  <button className="btn-primary">Choose File</button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                </div>
-              </div>
-            )}
-
-            {isAnalyzing && (
-              <div className="p-8 text-center bg-white shadow-lg rounded-2xl">
-                <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse">
-                  <FileText className="w-12 h-12 text-white" />
-                </div>
-                <h3 className="mb-4 text-2xl font-bold text-gray-900">Analyzing Your Resume</h3>
-                <p className="mb-6 text-gray-600">
-                  Our AI is scanning your resume for content, structure, and ATS compatibility...
-                </p>
-                 <div className="w-full max-w-md h-2 mx-auto overflow-hidden bg-gray-200 rounded-full">
-                    <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse"></div>
-                </div>
-              </div>
-            )}
-
-            {analysisResult && (
-              <div className="space-y-8 animate-fade-in">
-                <div className="p-8 bg-white shadow-lg rounded-2xl">
-                  <div className="mb-8 text-center">
-                    <div className={`relative flex items-center justify-center w-40 h-40 mx-auto mb-6 rounded-full bg-slate-50`}>
-                        <svg className="absolute w-full h-full" viewBox="0 0 100 100">
-                            <circle className="text-gray-200" strokeWidth="8" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" />
-                            <circle className={`${analysisResult.gradeColor}`} strokeWidth="8" strokeDasharray="283" strokeDashoffset={283 - (283 * analysisResult.atsScore) / 100} strokeLinecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}/>
-                        </svg>
-                        <div className="text-center">
-                            <div className="text-5xl font-bold text-gray-800">
-                                <AnimatedCounter end={analysisResult.atsScore} />
-                            </div>
-                            <div className="text-sm text-gray-500">ATS Score</div>
-                        </div>
-                    </div>
-                    <h3 className={`mb-2 text-3xl font-bold ${analysisResult.gradeColor}`}>{analysisResult.grade}</h3>
-                    <p className="text-gray-600">
-                      Based on our analysis, your resume has an estimated {analysisResult.atsScore}% compatibility score.
-                    </p>
-                  </div>
-
-                  <div className="flex justify-center gap-4">
-                    <button onClick={resetAnalysis} className="btn-secondary">
-                      Analyze Another Resume
-                    </button>
-                  </div>
-                </div>
-
-                <div className="p-8 bg-white shadow-lg rounded-2xl">
-                  <h3 className="mb-6 text-2xl font-bold text-gray-900">Detailed ATS Breakdown</h3>
-                  <div className="space-y-4">
-                    {analysisResult.issues.map((issue, index) => (
-                      <div
-                        key={index}
-                        className={`p-4 rounded-xl border-l-4 ${
-                          issue.type === "CRITICAL_ISSUE"
-                            ? "bg-red-50 border-red-500"
-                            : issue.type === "IMPROVEMENT"
-                            ? "bg-yellow-50 border-yellow-500"
-                            : "bg-green-50 border-green-500"
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="flex-shrink-0 mt-1">
-                            {issue.type === "CRITICAL_ISSUE" && <XCircle className="w-5 h-5 text-red-500" />}
-                            {issue.type === "IMPROVEMENT" && <AlertTriangle className="w-5 h-5 text-yellow-500" />}
-                            {issue.type === "GOOD_PRACTICE" && <CheckCircle className="w-5 h-5 text-green-500" />}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-gray-900">{issue.category}</span>
-                            </div>
-                            <p className="text-gray-700">{issue.message}</p>
-                          </div>
-                        </div>
+                <div className="mb-8 text-center">
+                  <div className={`relative flex items-center justify-center w-40 h-40 mx-auto mb-6 rounded-full bg-slate-50`}>
+                    <svg className="absolute w-full h-full" viewBox="0 0 100 100">
+                      <circle className="text-gray-200" strokeWidth="8" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" />
+                      <circle className={`${analysisResult.gradeColor}`} strokeWidth="8" strokeDasharray="283" strokeDashoffset={283 - (283 * analysisResult.atsScore) / 100} strokeLinecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}/>
+                    </svg>
+                    <div className="text-center">
+                      <div className="text-5xl font-bold text-gray-800">
+                        <AnimatedCounter end={analysisResult.atsScore} />
                       </div>
-                    ))}
+                      <div className="text-sm text-gray-500">ATS Score</div>
+                    </div>
                   </div>
+                  <h3 className={`mb-2 text-3xl font-bold ${analysisResult.gradeColor}`}>{analysisResult.grade}</h3>
+                  <p className="text-gray-600">
+                    Based on our analysis, your resume has an estimated {analysisResult.atsScore}% compatibility score.
+                  </p>
                 </div>
-
-                <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                  <div className="p-8 bg-white shadow-lg rounded-2xl">
-                    <h3 className="flex items-center gap-2 mb-6 text-xl font-bold text-gray-900">
-                      <CheckCircle className="w-6 h-6 text-green-500" />
-                      Strengths
-                    </h3>
-                    <ul className="space-y-3">
-                      {analysisResult.strengths.map((strength, index) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <div className="flex-shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
-                          <span className="text-gray-700">{strength}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="p-8 bg-white shadow-lg rounded-2xl">
-                    <h3 className="flex items-center gap-2 mb-6 text-xl font-bold text-gray-900">
-                      <Zap className="w-6 h-6 text-purple-500" />
-                      AI-Powered Suggestions
-                    </h3>
-                    <ul className="space-y-3">
-                      {analysisResult.improvements.map((improvement, index) => (
-                        <li key={index} className="flex items-start gap-3">
-                           <div className="flex-shrink-0 w-2 h-2 mt-2 bg-purple-500 rounded-full"></div>
-                          <span className="text-gray-700">{improvement}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                <div className="flex justify-center gap-4">
+                  <button onClick={resetAnalysis} className="btn-secondary">
+                    Analyze Another Resume
+                  </button>
                 </div>
               </div>
-            )}
+              <div className="p-8 bg-white shadow-lg rounded-2xl">
+                {/* ... (rest of your results) ... */}
+                <h3 className="mb-6 text-2xl font-bold text-gray-900">Detailed ATS Breakdown</h3>
+                  <div className="space-y-4">
+                    {analysisResult.issues.map((issue, index) => (
+                      <div
+                        key={index}
+                        className={`p-4 rounded-xl border-l-4 ${
+                          issue.type === "CRITICAL_ISSUE"
+                            ? "bg-red-50 border-red-500"
+                            : issue.type === "IMPROVEMENT"
+                            ? "bg-yellow-50 border-yellow-500"
+                            : "bg-green-50 border-green-500"
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 mt-1">
+                            {issue.type === "CRITICAL_ISSUE" && <XCircle className="w-5 h-5 text-red-500" />}
+                            {issue.type === "IMPROVEMENT" && <AlertTriangle className="w-5 h-5 text-yellow-500" />}
+                            {issue.type === "GOOD_PRACTICE" && <CheckCircle className="w-5 h-5 text-green-500" />}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                               <span className="font-semibold text-gray-900">{issue.category}</span>
+                            </div>
+                            <p className="text-gray-700">{issue.message}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+              </div>
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                {/* ... (Strengths card) ... */}
+                <div className="p-8 bg-white shadow-lg rounded-2xl">
+                    <h3 className="flex items-center gap-2 mb-6 text-xl font-bold text-gray-900">
+                      <CheckCircle className="w-6 h-6 text-green-500" />
+                      Strengths
+                    </h3>
+                    <ul className="space-y-3">
+                      {analysisResult.strengths.map((strength, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <div className="flex-shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
+                          <span className="text-gray-700">{strength}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                {/* ... (AI Suggestions card) ... */}
+                <div className="p-8 bg-white shadow-lg rounded-2xl">
+                    <h3 className="flex items-center gap-2 mb-6 text-xl font-bold text-gray-900">
+                      <Zap className="w-6 h-6 text-purple-500" />
+                      AI-Powered Suggestions
+                    </h3>
+                    <ul className="space-y-3">
+                      {analysisResult.improvements.map((improvement, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                           <div className="flex-shrink-0 w-2 h-2 mt-2 bg-purple-500 rounded-full"></div>
+                          <span className="text-gray-700">{improvement}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+              </div>
+            </div>
+
+          ) : (
+
+            // --- 4. UPLOAD BOX (DEFAULT) ---
+            <div className="p-8 bg-white shadow-lg rounded-2xl">
+              <div
+                className="p-12 text-center transition-colors border-2 border-gray-300 border-dashed cursor-pointer rounded-2xl hover:border-purple-400"
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-100 to-pink-100">
+                  <Upload className="w-12 h-12 text-purple-600" />
+                </div>
+                <h3 className="mb-4 text-2xl font-bold text-gray-900">Upload Your Resume</h3>
+                <p className="max-w-md mx-auto mb-6 text-gray-600">
+                  Drag and drop your resume here, or click to browse. We support PDF format.
+                </p>
+                <button className="btn-primary">Choose File</button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </div>
+            </div>
+          )}
+          {/* ✅ END: UPDATED CONDITIONAL RENDERING */}
           </div>
         </div>
       </div>

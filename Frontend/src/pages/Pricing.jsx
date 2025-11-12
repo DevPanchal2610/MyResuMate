@@ -286,27 +286,27 @@ const Pricing = () => {
 
   const testimonials = [
     {
-      name: "Sarah Chen",
+      name: "Dev Panchal",
       role: "Software Engineer",
       company: "Google",
       content: "MyResuMate Premium helped me land my dream job at Google. The ATS optimization was incredible!",
-      avatar: "/professional-woman-smiling.png",
+      avatar: "/Dev image.jpg",
       rating: 5,
     },
     {
-      name: "Michael Rodriguez",
+      name: "Vyom Chauhan",
       role: "Marketing Director",
       company: "Meta",
       content: "The premium templates are stunning and the analytics helped me understand what works.",
-      avatar: "/professional-man-smiling.png",
+      avatar: "/vyom.jpg",
       rating: 5,
     },
     {
-      name: "Emily Johnson",
+      name: "Juhil Mistry",
       role: "Career Coach",
       company: "CareerPro",
       content: "Professional plan is perfect for my coaching business. My clients love the results!",
-      avatar: "/professional-woman-glasses.png",
+      avatar: "/Juhil.JPG",
       rating: 5,
     },
   ]

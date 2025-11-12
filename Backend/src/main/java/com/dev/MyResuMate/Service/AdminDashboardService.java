@@ -53,16 +53,16 @@ public class AdminDashboardService {
         // === 2. GET STATS FOR THE DATE RANGE ===
         BigDecimal revenue = transactionRepository.sumTotalRevenueBetweenDates(startDate, endDate);
         dto.setTotalRevenueForRange(revenue != null ? revenue : BigDecimal.ZERO);
-        dto.setNewUsersForRange(userRepository.countByCreatedAtBetween(startDate, endDate));
+        dto.setNewUsersForRange(userRepository.countByRoleNotAndCreatedAtBetween("ADMIN", startDate, endDate));
         dto.setNewSubscriptionsForRange(subscriptionRepository.countBySubscriptionStatusAndStartDateBetween("ACTIVE", startDate, endDate));
 
         // === 3. GET ALL-TIME STATS ===
-        dto.setTotalUsersAllTime(userRepository.count());
+        dto.setTotalUsersAllTime(userRepository.countByRoleNot("ADMIN"));
         dto.setActiveSubscriptionsAllTime(subscriptionRepository.countBySubscriptionStatus("ACTIVE"));
         dto.setTotalResumesAllTime(resumeRepository.count());
 
         // === 4. GET ALL-TIME LISTS FOR TABLES ===
-        dto.setRecentUsers(userRepository.findTop5ByOrderByCreatedAtDesc());
+        dto.setRecentUsers(userRepository.findTop5ByRoleNotOrderByCreatedAtDesc("ADMIN"));
         dto.setRecentTransactions(transactionRepository.findTop5ByPaymentStatusOrderByPaymentDateDesc("SUCCESSFUL"));
 
         // === 5. GET CHART DATA FOR THE DATE RANGE ===

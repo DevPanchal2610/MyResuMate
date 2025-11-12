@@ -1,8 +1,11 @@
 "use client"
 
+import { Trash2 } from "lucide-react"
+import toast, { Toaster } from "react-hot-toast"
 import { useState,useEffect } from "react"
 import { Link } from "react-router-dom"
 import { FileText, Download, Eye, Star, TrendingUp, Award, Plus, Clock, CheckCircle, Loader2, LayoutGrid } from "lucide-react"
+import Swal from "sweetalert2"
 import Sidebar from "../components/Sidebar.jsx"
 import AnimatedCounter from "../components/AnimatedCounter.jsx"
 import { useNavigate } from "react-router-dom";
@@ -81,6 +84,56 @@ const stats = [
     { action: "Created resume", item: "Marketing Manager Resume", time: "2 days ago" },
     { action: "Checked ATS score", item: "Data Scientist Resume", time: "3 days ago" },
   ]
+
+const handleDeleteResume = async (resumeId) => {
+  const result = await Swal.fire({
+    title: "Delete Resume?",
+    text: "Are you sure you want to delete this resume? This action cannot be undone.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#9333ea", // Purple
+    cancelButtonColor: "#ec4899", 
+    confirmButtonText: "Yes, delete it",
+    cancelButtonText: "Cancel",
+    background: "#fff",
+    color: "#111827",
+    customClass: {
+      popup: "rounded-2xl shadow-lg border border-gray-200",
+      title: "text-xl font-bold",
+      confirmButton: "px-4 py-2 rounded-lg",
+      cancelButton: "px-4 py-2 rounded-lg",
+    },
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await axios.delete(`http://localhost:8080/api/resumes/${resumeId}`, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+
+      Swal.fire({
+        title: "Deleted!",
+        text: "Your resume has been deleted successfully.",
+        icon: "success",
+        confirmButtonColor: "#9333ea",
+        background: "#fff",
+      });
+
+      // Refresh the resume list
+      fetchRecentResumes(user.token);
+    } catch (error) {
+      console.error("Failed to delete resume:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to delete the resume. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#9333ea",
+        background: "#fff",
+      });
+    }
+  }
+};
+
 
   return (
     <div className="min-h-screen pt-16 bg-gradient-to-br from-purple-50 via-pink-50 to-teal-50">
@@ -177,27 +230,34 @@ const stats = [
                     <p className="text-center text-gray-500">You haven't created any resumes yet.</p>
                   ) : (
                     recentResumes.slice(0, 3).map((resume) => (
-                      <Link 
-                        to={`/builder?resumeId=${resume.id}`} // ✅ Link to builder
-                        key={resume.id}
-                        className="flex items-center justify-between p-4 transition-colors bg-gray-50 rounded-xl hover:bg-gray-100"
-                      >
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
-                            <FileText className="w-6 h-6 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{resume.resumeTitle}</h3>
-                            <div className="flex items-center space-x-4 text-sm text-gray-600">
-                              <span>{resume.templateName}</span>
-                              <span>•</span>
-                              {/* Format the date */}
-                              <span>{formatDistanceToNow(new Date(resume.lastEdited), { addSuffix: true })}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    ))
+  <div
+    key={resume.id}
+    className="flex items-center justify-between p-4 transition-colors bg-gray-50 rounded-xl hover:bg-gray-100"
+  >
+    <Link to={`/builder?resumeId=${resume.id}`} className="flex items-center space-x-4 flex-1">
+      <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
+        <FileText className="w-6 h-6 text-white" />
+      </div>
+      <div>
+        <h3 className="font-semibold text-gray-900">{resume.resumeTitle}</h3>
+        <div className="flex items-center space-x-4 text-sm text-gray-600">
+          <span>{resume.templateName}</span>
+          <span>•</span>
+          <span>{formatDistanceToNow(new Date(resume.lastEdited), { addSuffix: true })}</span>
+        </div>
+      </div>
+    </Link>
+
+    {/* Delete Button */}
+    <button
+      onClick={() => handleDeleteResume(resume.id)}
+      className="p-2 ml-4 text-red-500 transition-all duration-200 rounded-full hover:bg-red-100"
+    >
+      <Trash2 className="w-5 h-5" />
+    </button>
+  </div>
+))
+
                   )}
                 </div>
               </div>

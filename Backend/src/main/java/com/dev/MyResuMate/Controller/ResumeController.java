@@ -82,4 +82,21 @@ public class ResumeController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
+    @DeleteMapping("/{resumeId}")
+    public ResponseEntity<?> deleteResume(@PathVariable Long resumeId, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body("User not authenticated");
+        }
+
+        try {
+            resumeService.deleteResume(resumeId, principal.getName());
+            return ResponseEntity.ok("Resume deleted successfully");
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
 }

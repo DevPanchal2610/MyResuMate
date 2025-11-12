@@ -39,7 +39,8 @@ const ErrorMessage = ({ error }) => {
 
 // Step Components (define outside Builder)
 const PersonalInfo = ({ resumeData, updateResumeData, errors, validateStep }) => (
-  <div className="space-y-6">
+  <div>
+    <div className="p-6 space-y-6 bg-gray-50 rounded-xl">
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div>
         <label className="block mb-2 text-sm font-medium text-gray-700">First Name</label>
@@ -172,6 +173,7 @@ const PersonalInfo = ({ resumeData, updateResumeData, errors, validateStep }) =>
       />
     </div>
   </div>
+</div>
 );
 
 const Experience = ({ resumeData, updateArrayItem, removeArrayItem, addArrayItem, errors, validateStep }) => (
@@ -1012,8 +1014,8 @@ const Builder = () => {
         {/* Main Content */}
         <div className="flex flex-1 overflow-x-auto">
           {/* Form Section */}
-          <div className={`${showPreview ? "flex-shrink-0" : "w-full"} transition-all duration-300`}>
-            <div className="p-8 min-w-[600px]">
+          <div className={`${showPreview ? "w-2/5" : "w-full"} transition-all duration-300 overflow-y-auto`}>
+            <div className="p-8 w-full">
               {/* Header */}
               <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
                 <div>
@@ -1060,36 +1062,38 @@ const Builder = () => {
 
               {/* Progress Steps */}
               <div className="mb-8">
-                <div className="flex items-center justify-between mb-4">
+                <div className="relative flex justify-between ">
+
+                  {/* Background Line */}
+                  <div className="absolute top-6 left-0 w-full h-1 bg-gray-200" style={{ transform: "translateY(-50%)",width: "100%" }} />
+
+                  {/* Progress Line */}
+                  <div 
+                    className="absolute top-6 left-0 h-1 bg-green-500 transition-all duration-300" 
+                    style={{ 
+                      transform: "translateY(-50%)", 
+                      width: `${(currentStep / (steps.length - 1)) * 100}%` 
+                    }} 
+                  />
+
                   {steps.map((step, index) => (
-                    <div key={step.id} className="flex items-center">
+                    <div key={step.id} className="relative z-10 flex flex-col items-center w-12">
                       <button
                         onClick={() => setCurrentStep(index)}
                         className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 ${
                           index === currentStep
-                            ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+                            ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-110"
                             : index < currentStep
                               ? "bg-green-500 text-white"
-                              : "bg-gray-200 text-gray-500 hover:bg-gray-300"
+                              : "bg-white text-gray-500 border-2 border-gray-200 hover:border-gray-400"
                         }`}
                       >
                         {index < currentStep ? <Check className="w-5 h-5" /> : step.icon}
                       </button>
-                      {index < steps.length - 1 && (
-                        <div
-                          className={`w-16 h-1 mx-2 ${
-                            index < currentStep ? "bg-green-500" : "bg-gray-200"
-                          } transition-colors duration-200`}
-                        />
-                      )}
+                      <span className={`mt-2 text-sm ${index === currentStep ? 'text-purple-600 font-medium' : 'text-gray-600'}`}>
+                        {step.name}
+                      </span>
                     </div>
-                  ))}
-                </div>
-                <div className="flex justify-between text-sm text-gray-600">
-                  {steps.map((step) => (
-                    <span key={step.id} className="text-center">
-                      {step.name}
-                    </span>
                   ))}
                 </div>
               </div>
@@ -1137,7 +1141,7 @@ const Builder = () => {
           {/* ✅ UPDATED: PREVIEW SECTION */}
           {/* ========================================================== */}
           {showPreview && (
-            <div className="flex-1 w-1/2 min-w-[400px] overflow-auto bg-gray-300 p-8">
+            <div className="w-3/5 overflow-y-auto bg-gray-300 p-8">
               <div className="mb-4">
                 <h2 className="mb-2 text-xl font-bold text-gray-900">Live Preview</h2>
                 <p className="text-sm text-gray-600">See how your resume looks in real-time</p>

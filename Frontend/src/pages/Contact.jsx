@@ -87,7 +87,7 @@ const Contact = () => {
       icon: <Phone className="w-8 h-8" />,
       title: "Phone Support",
       description: "Call us for immediate assistance",
-      contact: "+1 (555) 123-4567",
+      contact: "+91 93165-10025",
       gradient: "from-green-500 to-emerald-500",
     },
   ]
@@ -343,11 +343,8 @@ const Contact = () => {
                       <div>
                         <p className="font-semibold text-gray-900">Address</p>
                         <p className="text-gray-600">
-                          123 Innovation Drive
-                          <br />
-                          San Francisco, CA 94105
-                          <br />
-                          United States
+                          1302 Shilp Corporate Park,<br />
+                          Ahemdabad, Gujarat- 380051
                         </p>
                       </div>
                     </div>

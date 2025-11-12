@@ -50,6 +50,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/contact/submit").permitAll()
                         .requestMatchers("/api/plans").permitAll()
                         .requestMatchers("/api/templates").permitAll()
+                        .requestMatchers("/api/ats/**" +
+                                "").permitAll()
                         // All other /api paths are protected
                         .anyRequest().authenticated()
                 )
