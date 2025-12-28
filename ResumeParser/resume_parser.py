@@ -101,7 +101,20 @@ async def analyze_resume(file: UploadFile = File(...)):
         {raw_text}
         ---
         """
-        response = model.generate_content(prompt)
+        try:
+            response = model.generate_content(
+                prompt,
+                request_options={"timeout": 20}  # ⏱️ IMPORTANT
+            )
+        except Exception as e:
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "error": "Gemini rate limit or timeout",
+                    "details": str(e)
+                }
+            )
+
         json_text = response.text.strip().replace("```json", "").replace("```", "")
         json_data = json.loads(json_text)
         validated_content = Resume.model_validate(json_data)

@@ -41,10 +41,16 @@ const ATS = () => {
         const formData = new FormData()
         formData.append("file", file)
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 sec max
+
         const response = await fetch("http://localhost:8080/api/ats/analyze", {
           method: "POST",
           body: formData,
-        })
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           const errorBody = await response.text();
@@ -79,15 +85,20 @@ const ATS = () => {
 
         // ✅ Get the specific error message from the backend
         let errorMessage = "Something went wrong. Please try again.";
-        if (error.message.includes("Failed to analyze resume:")) {
-            try {
-                // Try to parse the JSON error from the backend
-                const errorJson = JSON.parse(error.message.replace("Failed to analyze resume: ", ""));
-                errorMessage = errorJson.error || errorMessage;
-            } catch (parseError) {
-                // Fallback if the error isn't JSON
-                errorMessage = error.message;
-            }
+
+        // ✅ TIMEOUT HANDLING
+        if (error.name === "AbortError") {
+          errorMessage = "Analysis is taking too long. Please try again later.";
+        }
+       // ✅ BACKEND ERROR HANDLING
+        else if (error.message.startsWith("Failed to analyze resume:")) {
+          try {
+            const jsonPart = error.message.replace("Failed to analyze resume: ", "");
+            const errorJson = JSON.parse(jsonPart);
+            errorMessage = errorJson.error || errorMessage;
+          } catch {
+            errorMessage = error.message;
+          }
         }
 
         setAnalysisError(errorMessage); // Show the specific error

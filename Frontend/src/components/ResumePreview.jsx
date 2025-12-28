@@ -306,6 +306,26 @@ const ResumePreview = React.forwardRef(({ resumeData, template = "modern" }, ref
               </section>
             )}
 
+            {education.length > 0 && (
+              <section className={sectionStyle}>
+                <h2 className="text-sm font-bold uppercase tracking-widest text-gray-600 border-b pb-1 mb-0">Education</h2>
+               <div className="space-y-1">
+                  {education.map((edu, index) => (
+                    <div key={index} className={sectionStyle}>
+                      <div className="flex justify-between items-baseline">
+                        <h3 className="text-base font-semibold break-words">{edu.degree || "Degree"}</h3>
+                        <p className="text-sm text-gray-600 break-words">{edu.year || "Year"}</p>
+                    </div>
+                      <p className="text-[13px] text-gray-700 break-words">{edu.school || "School"}</p>
+                      {edu.gpa && (
+                        <p className="text-[13px] text-gray-600 break-words">GPA: {edu.gpa}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {experience.length > 0 && (
               <section className={sectionStyle}>
                 <h2 className="text-sm font-bold uppercase tracking-widest text-gray-600 border-b pb-1 mb-0">Experience</h2>
@@ -352,25 +372,7 @@ const ResumePreview = React.forwardRef(({ resumeData, template = "modern" }, ref
               </section>
             )}
 
-            {education.length > 0 && (
-              <section className={sectionStyle}>
-                <h2 className="text-sm font-bold uppercase tracking-widest text-gray-600 border-b pb-1 mb-0">Education</h2>
-               <div className="space-y-1">
-                  {education.map((edu, index) => (
-                    <div key={index} className={sectionStyle}>
-                      <div className="flex justify-between items-baseline">
-                        <h3 className="text-base font-semibold break-words">{edu.degree || "Degree"}</h3>
-                        <p className="text-sm text-gray-600 break-words">{edu.year || "Year"}</p>
-                    </div>
-                      <p className="text-[13px] text-gray-700 break-words">{edu.school || "School"}</p>
-                      {edu.gpa && (
-                        <p className="text-[13px] text-gray-600 break-words">GPA: {edu.gpa}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
+            
             
             {skills.length > 0 && (
                <section className={sectionStyle}>

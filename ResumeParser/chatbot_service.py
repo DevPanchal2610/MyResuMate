@@ -5,6 +5,7 @@ import os
 
 # --- Configuration ---
 api_key = os.getenv("GOOGLE_API_KEY")
+print(f"Using GOOGLE_API_KEY: {api_key}")
 if not api_key:
     raise ValueError("GOOGLE_API_KEY environment variable not set.")
 

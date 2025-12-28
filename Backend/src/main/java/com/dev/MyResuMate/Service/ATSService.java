@@ -1,22 +1,27 @@
 package com.dev.MyResuMate.Service;
 
 import com.dev.MyResuMate.DTO.AtsAnalysisResult;
+import com.dev.MyResuMate.DTO.DesignAnalysis;
 import com.dev.MyResuMate.DTO.FullAnalysisResponse;
+import com.dev.MyResuMate.DTO.Resume1;
 import com.dev.MyResuMate.Util.InvalidResumeException;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,23 +48,72 @@ public class ATSService {
         }
         // Step 1: Call Python microservice
         String pythonUrl = "http://localhost:8000/analyze";
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = new RestTemplateBuilder()
+                .setConnectTimeout(Duration.ofSeconds(10))
+                .setReadTimeout(Duration.ofSeconds(30))
+                .build();
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new MultipartInputStreamFileResource(file.getInputStream(), file.getOriginalFilename()));
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        ResponseEntity<FullAnalysisResponse> response = restTemplate.postForEntity(pythonUrl, requestEntity, FullAnalysisResponse.class);
-        FullAnalysisResponse parsedData = response.getBody();
+        FullAnalysisResponse parsedData;
+
+        try {
+            ResponseEntity<FullAnalysisResponse> response =
+                    restTemplate.postForEntity(pythonUrl, requestEntity, FullAnalysisResponse.class);
+            parsedData = response.getBody();
+        } catch (HttpClientErrorException.TooManyRequests e) {
+
+            // ✅ PYTHON / GEMINI RATE LIMIT HIT
+            System.err.println("Python service rate-limited: " + e.getResponseBodyAsString());
+
+            // 👉 EMPTY but VALID fallback object
+            parsedData = new FullAnalysisResponse(
+                    new Resume1(
+                            null,
+                            null,
+                            List.of(),
+                            List.of(),
+                            List.of(),
+                            null,
+                            List.of()
+                    ),
+                    new DesignAnalysis(
+                            0,          // image_count
+                            false,      // has_photo
+                            0,          // font_count
+                            List.of(),  // fonts
+                            false       // uses_columns_or_tables
+                    )
+            );
+
+        }
+
         if (parsedData == null) {
             throw new Exception("Failed to get parsed data from Python service.");
         }
+
 
         // Step 2: Get score and detailed feedback from our new diagnostic engine
         AtsScoreService.ScoreWithFeedback scoreAndFeedback = atsScoreService.analyzeAndScore(parsedData.content(), parsedData.design());
 
         // Step 3: Get high-level AI suggestions
-        List<String> aiSuggestions = geminiSuggestionService.getSuggestions(parsedData.content());
+        List<String> aiSuggestions;
+        try {
+            aiSuggestions = geminiSuggestionService.getSuggestions(parsedData.content());
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("429")) {
+                aiSuggestions = List.of(
+                        "AI suggestions are temporarily unavailable due to rate limits.",
+                        "Please wait a few seconds and try again."
+                );
+            } else {
+                throw e;
+            }
+        }
+
 
         // Step 4: Combine everything into the final result
         return new AtsAnalysisResult(
