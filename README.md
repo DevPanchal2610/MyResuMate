@@ -141,10 +141,32 @@ python resume_parser.py
 
 ## 📸 Screenshots & Demo
 
-### Dashboard & Resume Builder
+### 🌐 Landing Page
+![Landing Page](./screenshots/landing.png)
 
-![Dashboard Screenshot](https://via.placeholder.com/800x450?text=Dashboard+Screenshot)
+### 📊 User Dashboard
+![Dashboard](./screenshots/dashboard.png)
 
+### 📝 Resume Builder with Live Preview
+![Resume Builder](./screenshots/resume-builder.png)
+
+### 📈 ATS Score Analysis
+![ATS Score](./screenshots/ats-score.png)
+
+### 🔍 Detailed ATS Breakdown
+![ATS Breakdown](./screenshots/ats-breakdown.png)
+
+### 🤖 AI Resume Assistant
+![AI Chat](./screenshots/ai-chat.png)
+
+### 🎨 Resume Templates
+![Templates](./screenshots/templates.png)
+
+### 💳 Pricing Plans
+![Pricing](./screenshots/pricing.png)
+
+### ⚙️ Admin Dashboard
+![Admin Dashboard](./screenshots/admin-dashboard.png)
 ---
 
 ## 🔐 Security Features
