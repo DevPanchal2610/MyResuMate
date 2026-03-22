@@ -62,33 +62,34 @@ MyResuMate is a modern, full-stack application designed to empower job seekers a
 - PyMuPDF for PDF processing
 
 ### Project Structure
-MyResuMate/
-├── Backend/ # Java Spring Boot Application
-│ ├── src/main/java/ # Main application code
-│ │ └── Controller/ # REST endpoint controllers
-│ │ └── Service/ # Business logic
-│ │ └── Repository/ # Data access layer
-│ │ └── Model/ # Entity models
-│ │ └── DTO/ # Data transfer objects
-│ │ └── Security/ # JWT and auth config
-│ │ └── Config/ # Application configuration
-│ ├── src/main/resources/ # Configuration files
-│ └── pom.xml # Maven dependencies
-│
-├── Frontend/ # React Application
-│ ├── src/
-│ │ ├── pages/ # Page components
-│ │ ├── components/ # Reusable components
-│ │ ├── styles/ # CSS and styling
-│ │ └── main.jsx # Entry point
-│ └── package.json # NPM dependencies
-│
-└── ResumeParser/ # Python AI Microservice
-├── resume_parser.py # Resume parsing logic
-├── chatbot_service.py # AI chatbot service
-└── requirements.txt # Python
 
-Dependencies
+```
+MyResuMate/
+├── Backend/                        # Java Spring Boot Application
+│   ├── src/main/java/              # Main application code
+│   │   ├── Controller/             # REST endpoint controllers
+│   │   ├── Service/                # Business logic
+│   │   ├── Repository/             # Data access layer
+│   │   ├── Model/                  # Entity models
+│   │   ├── DTO/                    # Data transfer objects
+│   │   ├── Security/               # JWT and auth config
+│   │   └── Config/                 # Application configuration
+│   ├── src/main/resources/         # Configuration files
+│   └── pom.xml                     # Maven dependencies
+│
+├── Frontend/                       # React Application
+│   ├── src/
+│   │   ├── pages/                  # Page components
+│   │   ├── components/             # Reusable components
+│   │   ├── styles/                 # CSS and styling
+│   │   └── main.jsx                # Entry point
+│   └── package.json                # NPM dependencies
+│
+└── ResumeParser/                   # Python AI Microservice
+    ├── resume_parser.py            # Resume parsing logic
+    ├── chatbot_service.py          # AI chatbot service
+    └── requirements.txt            # Python dependencies
+```
 
 ---
 
@@ -106,112 +107,169 @@ Dependencies
 ```bash
 cd Backend
 ./mvnw clean install
-./mvnw spring-boot:run 
+./mvnw spring-boot:run
 ```
-Backend runs on: http://localhost:8080
 
-Configuration:
+> Backend runs on: `http://localhost:8080`
 
-Update application.properties with your database credentials
-Set environment variable: GEMINI_API_KEY for AI features
-Configure file upload directory
+**Configuration:**
+- Update `application.properties` with your database credentials
+- Set environment variable: `GEMINI_API_KEY` for AI features
+- Configure file upload directory
 
-Frontend Setup
-  cd Frontend
-  npm install
-  npm run dev
+### Frontend Setup
 
-Frontend runs on: http://localhost:5173
+```bash
+cd Frontend
+npm install
+npm run dev
+```
 
-Python Microservice Setup
-  cd ResumeParser
-  pip install -r requirements.txt
-  python resume_parser.py
+> Frontend runs on: `http://localhost:5173`
 
-Microservice runs on: http://localhost:8001
+### Python Microservice Setup
 
-📸 Screenshots & Demo
+```bash
+cd ResumeParser
+pip install -r requirements.txt
+python resume_parser.py
+```
 
-Application Screenshots
+> Microservice runs on: `http://localhost:8001`
 
-Dashboard & Resume Builder
-<img src="https://via.placeholder.com/800x450?text=Dashboard+Screenshot" alt="Dashboard Screenshot">
+---
 
-🔐 Security Features
-  JWT Authentication: Secure token-based authentication
-  Password Encryption: Industry-standard password hashing (bcrypt)
-  Role-Based Access Control: Admin and user role separation
-  Secure API Endpoints: Protected REST endpoints with authorization checks
-  File Upload Validation: Strict file type and size validation
-  CORS Configuration: Properly configured Cross-Origin Resource Sharing
-💳 Payment Integration
-  Razorpay Integration: Seamless subscription payment processing
-  Multiple Plans: Flexible subscription tiers for different user needs
-  Secure Transactions: PCI-DSS compliant payment processing
-🔄 API Endpoints
-Authentication
-  POST /api/auth/register - User registration
-  POST /api/auth/login - User login
-  POST /api/auth/refresh-token - Refresh JWT token
-  Resume Operations
-  GET /api/resumes - Get all user resumes
-  POST /api/resumes - Create new resume
-  PUT /api/resumes/{id} - Update resume
-  DELETE /api/resumes/{id} - Delete resume
-  POST /api/resumes/{id}/pdf - Generate PDF
-  ATS Checker
-  POST /api/ats/check - Analyze resume for ATS compatibility
-  Admin Operations
-  GET /api/admin/users - List all users
-  GET /api/admin/analytics - Get application analytics
-  GET /api/admin/subscriptions - Manage subscriptions
-🌟 Future Enhancements
-   Cover letter builder
-   LinkedIn integration
-   Interview preparation module
-   Mobile application
-   Real-time collaboration features
-   Advanced analytics and insights
-   Job matching recommendations
-   Integration with job portals
-📝 Environment Variables
-  Create a .env file in the Backend directory:
-    GEMINI_API_KEY=your_gemini_api_key_here
-    RAZORPAY_KEY_ID=your_razorpay_key_id
-    RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-    DATABASE_URL=jdbc:mysql://localhost:3306/resumedb
-    DATABASE_USERNAME=root
-    DATABASE_PASSWORD=your_password
-    JWT_SECRET=your_jwt_secret_key
+## 📸 Screenshots & Demo
 
-🤝 Contributing
-  We welcome contributions! To contribute:
+### Dashboard & Resume Builder
 
-  1.Fork the repository
-  2.Create a feature branch (git checkout -b feature/amazing-feature)
-  3.Commit your changes (git commit -m 'Add amazing feature')
-  4.Push to the branch (git push origin feature/amazing-feature)
-  5.Open a Pull Request
-  
-  Please ensure:
+![Dashboard Screenshot](https://via.placeholder.com/800x450?text=Dashboard+Screenshot)
 
-    ->Code follows project conventions
-    ->Tests pass successfully
-    ->Documentation is updated
-    ->Commit messages are clear and descriptive
-    
-📊 Project Statistics
-    Languages: Java, Python, JavaScript/React
-    Frontend: React 18 with Vite
-    Backend: Spring Boot
-    Database: MySQL
-    AI Integration: Google Gemini API
-    Payment Gateway: Razorpay
-    
-🎓 Key Learning Resources
-    Spring Boot Documentation
-    React Documentation
-    Tailwind CSS
-    Three.js Guide
-    PyMuPDF Documentation
-Made with ❤️ by MyResuMate Team
+---
+
+## 🔐 Security Features
+
+- **JWT Authentication**: Secure token-based authentication
+- **Password Encryption**: Industry-standard password hashing (bcrypt)
+- **Role-Based Access Control**: Admin and user role separation
+- **Secure API Endpoints**: Protected REST endpoints with authorization checks
+- **File Upload Validation**: Strict file type and size validation
+- **CORS Configuration**: Properly configured Cross-Origin Resource Sharing
+
+---
+
+## 💳 Payment Integration
+
+- **Razorpay Integration**: Seamless subscription payment processing
+- **Multiple Plans**: Flexible subscription tiers for different user needs
+- **Secure Transactions**: PCI-DSS compliant payment processing
+
+---
+
+## 🔄 API Endpoints
+
+### Authentication
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/auth/register` | User registration |
+| `POST` | `/api/auth/login` | User login |
+| `POST` | `/api/auth/refresh-token` | Refresh JWT token |
+
+### Resume Operations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/resumes` | Get all user resumes |
+| `POST` | `/api/resumes` | Create new resume |
+| `PUT` | `/api/resumes/{id}` | Update resume |
+| `DELETE` | `/api/resumes/{id}` | Delete resume |
+| `POST` | `/api/resumes/{id}/pdf` | Generate PDF |
+
+### ATS Checker
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/ats/check` | Analyze resume for ATS compatibility |
+
+### Admin Operations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/admin/users` | List all users |
+| `GET` | `/api/admin/analytics` | Get application analytics |
+| `GET` | `/api/admin/subscriptions` | Manage subscriptions |
+
+---
+
+## 🌟 Future Enhancements
+
+- [ ] Cover letter builder
+- [ ] LinkedIn integration
+- [ ] Interview preparation module
+- [ ] Mobile application
+- [ ] Real-time collaboration features
+- [ ] Advanced analytics and insights
+- [ ] Job matching recommendations
+- [ ] Integration with job portals
+
+---
+
+## 📝 Environment Variables
+
+Create a `.env` file in the `Backend` directory:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+DATABASE_URL=jdbc:mysql://localhost:3306/resumedb
+DATABASE_USERNAME=root
+DATABASE_PASSWORD=your_password
+JWT_SECRET=your_jwt_secret_key
+```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! To contribute:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+**Please ensure:**
+- Code follows project conventions
+- Tests pass successfully
+- Documentation is updated
+- Commit messages are clear and descriptive
+
+---
+
+## 📊 Project Statistics
+
+| Category | Details |
+|----------|---------|
+| Languages | Java, Python, JavaScript/React |
+| Frontend | React 18 with Vite |
+| Backend | Spring Boot |
+| Database | MySQL |
+| AI Integration | Google Gemini API |
+| Payment Gateway | Razorpay |
+
+---
+
+## 🎓 Key Learning Resources
+
+- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
+- [React Documentation](https://react.dev)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Three.js Guide](https://threejs.org/docs/)
+- [PyMuPDF Documentation](https://pymupdf.readthedocs.io)
+
+---
+
+<div align="center">Made with ❤️ by MyResuMate Team</div>
